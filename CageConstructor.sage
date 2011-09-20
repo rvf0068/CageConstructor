@@ -67,7 +67,20 @@ def EdgeValidInCage(G,e,g,k):
     """
     return G.distance(e[0],e[1])>=g-1 and\
         max([G.degree(e[0]),G.degree(e[1])])<k
+
+def IncrementAgeOfEdges(X,increment=1):
+    """Returns a new XGraph where we increment the age of all XEdges with
+    positive age in X.
     
+    Arguments:
+    - `X`:
+    - `increment`:
+    """
+    newlist=[]
+    for e in X.edgelist:
+        if e.age>0:
+            e.increment_age(increment)
+
 def TreeForCage(n,g,k):
     """Returns an XGraph with underlying graph a k-regular tree plus
     some isolated vertices. The tree will be the base for a
@@ -154,7 +167,6 @@ def PossibleNewEdges(X,problem='cage'):
     - `X`: An XGraph that should be extended
     - `problem`: name of the problem
     """
-
     good_edges=[]
     edges_a_priori_elegible =\
         [edge.ends for edge in filter(lambda e:e.age==0,X.edgelist)]
@@ -163,3 +175,22 @@ def PossibleNewEdges(X,problem='cage'):
             if EdgeValidInCage(X.graph(),e,X.g,X.k):
                 good_edges.append(e)
     return good_edges
+
+def XGraphWithEdgeAdded(X,method='cage:first'):
+    """Given an XGraph, returns an XGraph with one more XEdge,
+    according to some method.
+    
+    Arguments:
+    - `X`: an X graph
+    - `method`: method used to add the edge
+    """
+    edges_a_priori_elegible = filter(lambda e:e.age==0,X.edgelist)
+    IncrementAgeOfEdges(X)
+    if method == 'cage:first':
+        new_edge = edges_a_priori_elegible[0]
+        X.edgelist.remove(new_edge)
+        new_edge.age = 1
+        X.edgelist.append(new_edge)
+
+        
+            
