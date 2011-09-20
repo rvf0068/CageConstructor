@@ -2,19 +2,8 @@ class XEdge:
     """The end points of an edge, as an ordered pair, together with
     its "age". 
 
-    There are several types of "edge ages": 
-
-    - If the edge has to be in the graph, the age is the string 'p'
-      i.e. permanent.
-
-    - If the edge cannot be in the graph, the age is the integer -1.
-
-    - If the edge is not in the graph at the moment, but it could be
-      in the future, its age is the integer 0.
-
-    - Otherwise, the age is in the graph if and only if the age is a
-      positive integer. The idea is that the "edge age" gives a measure of
-      how long the edge has been present in the graph.
+    The idea is that the "edge age" gives a measure of how long the
+    edge has been present in the graph.
     """
     def __init__(self):
         """Initialize XEdge (xtra edge)
@@ -37,7 +26,8 @@ class XGraph:
     def __init__(self):
         """Initialize Xtra Graph
         """
-        self.edgelist=[]  # list of XEdges
+        self.edgelist=[]  # list of XEdges that could be added
+        self.edgeperm=[]  # list of XEdges that have to be added
         self.verts=0      # an integer. Vertices are labeled
                           # 0,1,..,self.verts
         self.g=3          # girth sougth
@@ -47,8 +37,10 @@ class XGraph:
         """Returns the underlying graph of the XGraph
         """
         g = Graph(self.verts)
+        for e in self.edgeperm:
+            g.add_edge(e.ends)
         for e in self.edgelist:
-            if e.age > 0 or e.age == 'p':
+            if e.age>0:
                 g.add_edge(e.ends)
         return g
 
@@ -76,7 +68,6 @@ def IncrementAgeOfEdges(X,increment=1):
     - `X`:
     - `increment`:
     """
-    newlist=[]
     for e in X.edgelist:
         if e.age>0:
             e.increment_age(increment)
@@ -116,44 +107,42 @@ def TreeForCage(n,g,k):
         for i in range(k):
             edge = XEdge()
             edge.ends = (0,i+1)
-            edge.age = 'p'
-            T.edgelist.append(edge)
+            edge.age = '-1'
+            T.edgeperm.append(edge)
         for i in range(l):
             for j in range(k*(k-1)^i):
                 for t in range(k-1):
                     edge = XEdge()
                     edge.ends = (vlso(i)+j,vlso(i+1)+j*(k-1)+t)
-                    edge.age = 'p'
-                    T.edgelist.append(edge)
+                    edge.age = '-1'
+                    T.edgeperm.append(edge)
 
     if is_even(g):
         l = (g-2)/2
         edge = XEdge()
         edge.ends = (0,1)
-        edge.age = 'p'
-        T.edgelist.append(edge)
+        edge.age = '-1'
+        T.edgeperm.append(edge)
         for i in [-1]+range(l-1):
             for j in range(2*(k-1)^(i+1)):
                 for t in range(k-1):
                     edge = XEdge()
                     edge.ends = (vlse(i)+j,vlse(i+1)+j*(k-1)+t)
-                    edge.age = 'p'
-                    T.edgelist.append(edge)
+                    edge.age = '-1'
+                    T.edgeperm.append(edge)
 
     auxg = Graph(n) # auxg will be the graph of the tree. We need it
                     # so that we can assign an age to the nonpermanent
                     # edges.
-    auxg.add_edges([e.ends for e in T.edgelist])
+    auxg.add_edges([e.ends for e in T.edgeperm])
     nonedges = auxg.complement().edges(labels=False)
 
     for e in nonedges:
-        edge = XEdge()
-        edge.ends = e
         if EdgeValidInCage(auxg,e,g,k):
+            edge = XEdge()
+            edge.ends = e
             edge.age = 0
-        else:
-            edge.age = -1
-        T.edgelist.append(edge)
+            T.edgelist.append(edge)
     
     return T
 
@@ -168,7 +157,7 @@ def PossibleNewEdges(X,problem='cage'):
     - `problem`: name of the problem
     """
     good_edges=[]
-    edges_a_priori_elegible =\
+    edges_a_priori_elegible = \
         [edge.ends for edge in filter(lambda e:e.age==0,X.edgelist)]
     for e in edges_a_priori_elegible:
         if problem == 'cage':
