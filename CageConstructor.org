@@ -1,0 +1,5 @@
+#+TITLE: Newcages
+
+* Notes
+
+- Graph([]) gives an error (should it?)
