@@ -20,11 +20,13 @@ class XGraph:
     def __init__(self):
         """Initialize Xtra Graph
         """
-        self.edgelist=[]  #list of XEdges
-        self.verts=0      #an integer. Vertices are labeled
-                          #0,1,..,self.verts
-        self.untouched=[] #list of vertices such that all its incident
-                          #edges are 'permanent'.
+        self.edgelist=[]  # list of XEdges
+        self.verts=0      # an integer. Vertices are labeled
+                          # 0,1,..,self.verts
+        self.untouched=[] # list of vertices such that all its incident
+                          # edges are 'permanent'.
+        self.g=3          # girth sougth
+        self.k=3          # regularity sougth
 
     def graph(self):
         """Returns the underlying graph of the XGraph
@@ -61,6 +63,8 @@ def TreeForCage(n,g,k):
 
     T = XGraph()
     T.verts = n
+    T.g = g
+    T.k = k
     listedges = []
 
     if is_odd(g):
