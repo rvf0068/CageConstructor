@@ -65,8 +65,8 @@ def EdgeValidInCage(G,e,g,k):
     - `g`: girth
     - `k`: regularity
     """
-    return G.distance(e[0],e[1])>=g-1 and\
-        max([G.degree(e[0]),G.degree(e[1])])<k
+    return G.distance(e[0],e[1]) >= g-1 and\
+        max([G.degree(e[0]),G.degree(e[1])]) < k
 
 def IncrementAgeOfEdges(X,increment=1):
     """Returns a new XGraph where we increment the age of all XEdges with
@@ -185,12 +185,37 @@ def XGraphWithEdgeAdded(X,method='cage:first'):
     - `method`: method used to add the edge
     """
     edges_a_priori_elegible = filter(lambda e:e.age==0,X.edgelist)
-    if method == 'cage:first':
-        new_edge = edges_a_priori_elegible[0]
-    X.edgelist.remove(new_edge)
-    IncrementAgeOfEdges(X)
-    new_edge.age = 1
-    X.edgelist.append(new_edge)
+    found = False
+    if len(edges_a_priori_elegible) > 0:
+        if method == 'cage:first':
+            elegible_edges =\
+                filter(lambda e:EdgeValidInCage(X.graph(),e.ends,X.g,X.k),\
+                           edges_a_priori_elegible)
+            if len(elegible_edges) > 0:
+                new_edge = elegible_edges[0]
+                found = True
 
-        
+        if found:
+            print "Adding ",new_edge.ends
+            X.edgelist.remove(new_edge)
+            IncrementAgeOfEdges(X)
+            new_edge.age = 1
+            X.edgelist.append(new_edge)
+
+def ExtendXGraph(X,method='cage:first'):
+    """Extend an XGraph according to some method.
+
+    For example, 'cage:first' searches for a cage always choosing the
+    first available edge.
+    
+    Arguments:
+    - `X`: the XGraph
+    - `method`: the method used
+    """
+    m = X.graph().size()
+    XGraphWithEdgeAdded(X,method)
+    while X.graph().size() > m:
+        m = m+1
+        XGraphWithEdgeAdded(X,method)
+
             
