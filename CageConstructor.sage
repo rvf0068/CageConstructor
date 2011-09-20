@@ -187,10 +187,10 @@ def XGraphWithEdgeAdded(X,method='cage:first'):
     edges_a_priori_elegible = filter(lambda e:e.age==0,X.edgelist)
     if method == 'cage:first':
         new_edge = edges_a_priori_elegible[0]
-        X.edgelist.remove(new_edge)
-        IncrementAgeOfEdges(X)
-        new_edge.age = 1
-        X.edgelist.append(new_edge)
+    X.edgelist.remove(new_edge)
+    IncrementAgeOfEdges(X)
+    new_edge.age = 1
+    X.edgelist.append(new_edge)
 
         
             
