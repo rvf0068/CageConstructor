@@ -20,9 +20,11 @@ class XGraph:
     def __init__(self):
         """Initialize Xtra Graph
         """
-        self.edgelist=[] #list of XEdges
-        self.verts=0     #an integer. Vertices are labeled
-                         #0,1,..,self.verts.
+        self.edgelist=[]  #list of XEdges
+        self.verts=0      #an integer. Vertices are labeled
+                          #0,1,..,self.verts
+        self.untouched=[] #list of vertices such that all its incident
+                          #edges are 'permanent'.
 
     def graph(self):
         """Returns the underlying graph of the XGraph
@@ -68,6 +70,7 @@ def TreeForCage(n,g,k):
             for j in range(k*(k-1)^i):
                 listedges = listedges +\
                 [(vlso(i)+j,vlso(i+1)+j*(k-1)+t) for t in range(k-1)]
+        T.untouched = range(vlso(l))
 
     if is_even(g):
         l = (g-2)/2
@@ -76,13 +79,14 @@ def TreeForCage(n,g,k):
             for j in range(2*(k-1)^(i+1)):
                 listedges = listedges +\
                 [(vlse(i)+j,vlse(i+1)+j*(k-1)+t) for t in range(k-1)]
+        T.untouched = range(vlse(l-1))
 
     for e in listedges:
         edge = XEdge()
         edge.ends = (e[0],e[1])
         edge.age = 0
         T.edgelist.append(edge)
-
+    
     return T
         
 
