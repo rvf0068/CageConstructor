@@ -73,7 +73,7 @@ def TreeForCage(n,g,k):
         for i in range(l):
             for j in range(k*(k-1)^i):
                 listedges = listedges +\
-                [(vlso(i)+j,vlso(i+1)+j*(k-1)+t) for t in range(k-1)]
+                    [(vlso(i)+j,vlso(i+1)+j*(k-1)+t) for t in range(k-1)]
         T.untouched = range(vlso(l))
 
     if is_even(g):
@@ -82,7 +82,7 @@ def TreeForCage(n,g,k):
         for i in [-1]+range(l-1):
             for j in range(2*(k-1)^(i+1)):
                 listedges = listedges +\
-                [(vlse(i)+j,vlse(i+1)+j*(k-1)+t) for t in range(k-1)]
+                    [(vlse(i)+j,vlse(i+1)+j*(k-1)+t) for t in range(k-1)]
         T.untouched = range(vlse(l-1))
 
     for e in listedges:
@@ -92,6 +92,34 @@ def TreeForCage(n,g,k):
         T.edgelist.append(edge)
     
     return T
+
+def PossibleNewEdges(G,problem='cage'):
+    """List of edges that can be added to the graph.
+
+    This is not a method of an XGraph so that we can work in different
+    problems.
+    
+    Arguments:
+    - `G`: An XGraph that should be extended
+    - `problem`: name of the problem
+    """
+    auxg = G.graph()
+    elegible_vertices = [x for x in range(G.verts) if not x in G.untouched]
+    auxh = auxg.subgraph(elegible_vertices)
+    edges_a_priori_elegible = auxh.complement().edges(labels=False)
+    good_edges=[]
+    for e in edges_a_priori_elegible:
+        if problem == 'cage':
+            v0 = e[0]
+            v1 = e[1]
+            if auxg.distance(v0,v1)>=G.g-1 and\
+                    max([auxg.degree(v0),auxg.degree(v1)])<G.k:
+                good_edges.append(e)
+    return good_edges
+
+        
+    
+
         
 
         
