@@ -1,17 +1,34 @@
 class XEdge:
     """The end points of an edge, as an ordered pair, together with
-    its "age".
+    its "age". 
+
+    There are several types of "edge ages": 
+
+    - If the edge has to be in the graph, the age is the string 'p'
+      i.e. permanent.
+
+    - If the edge cannot be in the graph, the age is the integer -1.
+
+    - If the edge is not in the graph at the moment, but it could be
+      in the future, its age is the integer 0.
+
+    - Otherwise, the age is in the graph if and only if the age is a
+      positive integer. The idea is that the "edge age" gives a measure of
+      how long the edge has been present in the graph.
     """
     def __init__(self):
         """Initialize XEdge (xtra edge)
         """
         self.ends = (0,1)
-        self.age = 0
+        self.age = 1
 
     def increment_age(self,increment=1):
         """Increment age of the XEdge. Default: increment by 1.
         """
         self.age = self.age + increment
+
+    def pretty_print(self):
+        return [self.ends,self.age]
 
 class XGraph:
     """Xtra Graph. It is determined by the list of its XEdges, and the
@@ -23,8 +40,6 @@ class XGraph:
         self.edgelist=[]  # list of XEdges
         self.verts=0      # an integer. Vertices are labeled
                           # 0,1,..,self.verts
-        self.untouched=[] # list of vertices such that all its incident
-                          # edges are 'permanent'.
         self.g=3          # girth sougth
         self.k=3          # regularity sougth
 
@@ -33,9 +48,26 @@ class XGraph:
         """
         g = Graph(self.verts)
         for e in self.edgelist:
-            g.add_edge(e.ends)
+            if e.age > 0 or e.age == 'p':
+                g.add_edge(e.ends)
         return g
-        
+
+    def pretty_print_edgelist(self):
+        return [e.pretty_print() for e in self.edgelist]
+    
+def EdgeValidInCage(G,e,g,k):
+    """Checks if the edge e could be added to G and still have a
+    (k,g)-graph.
+    
+    Arguments:
+    - `G`: a Sage graph
+    - `e`: a tuple
+    - `g`: girth
+    - `k`: regularity
+    """
+    return G.distance(e[0],e[1])>=g-1 and\
+        max([G.degree(e[0]),G.degree(e[1])])<k
+    
 def TreeForCage(n,g,k):
     """Returns an XGraph with underlying graph a k-regular tree plus
     some isolated vertices. The tree will be the base for a
@@ -43,7 +75,7 @@ def TreeForCage(n,g,k):
     
     Arguments:
     - `n`: total number of vertices
-    - `g`: girth sought
+    - `g`: girth sought, has to be >=4.
     - `k`: regularity sought
     """
     def vlso(s):
@@ -65,64 +97,69 @@ def TreeForCage(n,g,k):
     T.verts = n
     T.g = g
     T.k = k
-    listedges = []
 
     if is_odd(g):
         l = (g-3)/2
-        listedges = listedges + [(0,i+1) for i in range(k)]
+        for i in range(k):
+            edge = XEdge()
+            edge.ends = (0,i+1)
+            edge.age = 'p'
+            T.edgelist.append(edge)
         for i in range(l):
             for j in range(k*(k-1)^i):
-                listedges = listedges +\
-                    [(vlso(i)+j,vlso(i+1)+j*(k-1)+t) for t in range(k-1)]
-        T.untouched = range(vlso(l))
+                for t in range(k-1):
+                    edge = XEdge()
+                    edge.ends = (vlso(i)+j,vlso(i+1)+j*(k-1)+t)
+                    edge.age = 'p'
+                    T.edgelist.append(edge)
 
     if is_even(g):
         l = (g-2)/2
-        listedges = listedges + [(0,1)]
+        edge = XEdge()
+        edge.ends = (0,1)
+        edge.age = 'p'
+        T.edgelist.append(edge)
         for i in [-1]+range(l-1):
             for j in range(2*(k-1)^(i+1)):
-                listedges = listedges +\
-                    [(vlse(i)+j,vlse(i+1)+j*(k-1)+t) for t in range(k-1)]
-        T.untouched = range(vlse(l-1))
+                for t in range(k-1):
+                    edge = XEdge()
+                    edge.ends = (vlse(i)+j,vlse(i+1)+j*(k-1)+t)
+                    edge.age = 'p'
+                    T.edgelist.append(edge)
 
-    for e in listedges:
+    auxg = Graph(n) # auxg will be the graph of the tree. We need it
+                    # so that we can assign an age to the nonpermanent
+                    # edges.
+    auxg.add_edges([e.ends for e in T.edgelist])
+    nonedges = auxg.complement().edges(labels=False)
+
+    for e in nonedges:
         edge = XEdge()
-        edge.ends = (e[0],e[1])
-        edge.age = 0
+        edge.ends = e
+        if EdgeValidInCage(auxg,e,g,k):
+            edge.age = 0
+        else:
+            edge.age = -1
         T.edgelist.append(edge)
     
     return T
 
-def PossibleNewEdges(G,problem='cage'):
+def PossibleNewEdges(X,problem='cage'):
     """List of edges that can be added to the graph.
 
     This is not a method of an XGraph so that we can work in different
     problems.
     
     Arguments:
-    - `G`: An XGraph that should be extended
+    - `X`: An XGraph that should be extended
     - `problem`: name of the problem
     """
-    auxg = G.graph()
-    elegible_vertices = [x for x in range(G.verts) if not x in G.untouched]
-    auxh = auxg.subgraph(elegible_vertices)
-    edges_a_priori_elegible = auxh.complement().edges(labels=False)
+
     good_edges=[]
+    edges_a_priori_elegible =\
+        [edge.ends for edge in filter(lambda e:e.age==0,X.edgelist)]
     for e in edges_a_priori_elegible:
         if problem == 'cage':
-            v0 = e[0]
-            v1 = e[1]
-            if auxg.distance(v0,v1)>=G.g-1 and\
-                    max([auxg.degree(v0),auxg.degree(v1)])<G.k:
+            if EdgeValidInCage(X.graph(),e,X.g,X.k):
                 good_edges.append(e)
     return good_edges
-
-        
-    
-
-        
-
-        
-        
-
-
