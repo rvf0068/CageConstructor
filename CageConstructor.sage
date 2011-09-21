@@ -233,6 +233,13 @@ def SearchForGraph(X,limit=100,method='cage:first',delmethod='random'):
                     edgs = random.sample(removable_edges,i)
                 else:
                     edgs = removable_edges
+            if delmethod == 'oldest:random':
+                i = random.choice([1,2,3])
+                if i < len(removable_edges):
+                    # sorted by age, starting with the oldest
+                    oedgs = sorted(removable_edges,\
+                                       key=lambda e: e.age,reverse=True)
+                    edgs = oedgs[:i]
             for e in edgs:
                 e.age = 0
                 print "Removing ",e.ends
