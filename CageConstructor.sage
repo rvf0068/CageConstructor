@@ -1,3 +1,5 @@
+import random
+
 class XEdge:
     """The end points of an edge, as an ordered pair, together with
     its "age". 
@@ -195,7 +197,7 @@ def ExtendXGraph(X,method='cage:first'):
     """Extend an XGraph according to some method.
 
     For example, 'cage:first' searches for a cage always choosing the
-    first available edge.
+    first available edge. It works for g=3, k=4,5,6,7,8.
     
     Arguments:
     - `X`: the XGraph
@@ -206,5 +208,34 @@ def ExtendXGraph(X,method='cage:first'):
     while X.graph().size() > m:
         m = m+1
         XGraphWithEdgeAdded(X,method)
+
+def SearchForGraph(X,limit=100,method='cage:first',delmethod='random'):
+    """Continuously look for a graph with certain properties, deleting
+    edges if necessary.
+    
+    Arguments:
+    - `X`: an XGraph
+    - `limit`: maximum number of tries
+    - `method`: method for adding edges
+    - `delmethod`: method for deleting edges
+    """
+    ExtendXGraph(X,method)
+    ntry = 0
+    if method == 'cage:first':
+        while set(X.graph().degree())<>set([X.k]) and ntry<=limit:
+            ntry = ntry + 1
+            print ntry
+            print X.graph().degree()
+            removable_edges = filter(lambda e:e.age>0,X.edgelist)
+            if delmethod == 'random':
+                i = random.choice([1,2,3])
+                if i < len(removable_edges):
+                    edgs = random.sample(removable_edges,i)
+                else:
+                    edgs = removable_edges
+            for e in edgs:
+                e.age = 0
+                print "Removing ",e.ends
+            ExtendXGraph(X,method)
 
             
