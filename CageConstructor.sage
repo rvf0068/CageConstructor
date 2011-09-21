@@ -185,7 +185,17 @@ def XGraphWithEdgeAdded(X,method='cage:first'):
             if len(elegible_edges) > 0:
                 new_edge = elegible_edges[0]
                 found = True
-
+        elif method == 'cage:maxdegreesum':
+            elegible_edges =\
+                filter(lambda e:EdgeValidInCage(X.graph(),e.ends,X.g,X.k),\
+                           edges_a_priori_elegible)
+            if len(elegible_edges) > 0:
+                edgewithsums = \
+                    sorted(elegible_edges,\
+                               key=lambda e:X.graph().degree(e.ends[0])+\
+                               X.graph().degree(e.ends[1]),reverse=True)
+                new_edge = edgewithsums[0]
+                found = True
         if found:
             print "Adding ",new_edge.ends
             X.edgelist.remove(new_edge)
@@ -221,7 +231,7 @@ def SearchForGraph(X,limit=100,method='cage:first',delmethod='random'):
     """
     ExtendXGraph(X,method)
     ntry = 0
-    if method == 'cage:first':
+    if method == 'cage:first' or method == 'cage:maxdegreesum':
         while set(X.graph().degree())<>set([X.k]) and ntry<=limit:
             ntry = ntry + 1
             print ntry
