@@ -235,7 +235,7 @@ def ExtendXGraph(X,method='cage:first'):
         m = m+1
         XGraphWithEdgeAdded(X,method)
 
-def SearchForGraph(X,limit=100,method='cage:first',delmethod='random'):
+def SearchForGraph(X,limit=200,method='cage:maxdegreesum:notrecent',delmethod='oldest:random'):
     """Continuously look for a graph with certain properties, deleting
     edges if necessary.
     
