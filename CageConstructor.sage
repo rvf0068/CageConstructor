@@ -72,7 +72,9 @@ class XGraph:
     def show3d(self):
         """Applies show to the underlying graph
         """
-        return self.graph().show3d()        
+        return self.graph().show3d(vertex_colors=\
+                                       {(0.8,0.8,0.8):self.graph().vertices()},\
+                                       color_by_label=True)
     
 def EdgeValidInCage(G,e,g,k):
     """Checks if the edge e could be added to G and still have a
