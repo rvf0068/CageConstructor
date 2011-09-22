@@ -53,6 +53,26 @@ class XGraph:
 
     def pretty_print_edgelist(self):
         return [e.pretty_print() for e in self.edgelist]
+
+    def degree(self):
+        """Calculates degree on the underlying graph
+        """
+        return self.graph().degree()
+
+    def girth(self):
+        """Calculates girth on the underlying graph
+        """
+        return self.graph().girth()
+
+    def show(self):
+        """Applies show to the underlying graph
+        """
+        return self.graph().show()       
+
+    def show3d(self):
+        """Applies show to the underlying graph
+        """
+        return self.graph().show3d()        
     
 def EdgeValidInCage(G,e,g,k):
     """Checks if the edge e could be added to G and still have a
