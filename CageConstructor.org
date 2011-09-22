@@ -8,3 +8,8 @@
 * todo
 
 - [ ] define a pos dictionary for trees
+- [ ] make a table of tests
+- [ ] implement (as an option) that all edges returned in the same try
+  have age equal to 1, and the rest have their age incremented only
+  by 1. Currently, if the edges e1, e2 are added, e1 will have age 2,
+  e2 will have age 1, and the rest have their age added by 3.
