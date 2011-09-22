@@ -6,12 +6,17 @@ class XEdge:
 
     The idea is that the "edge age" gives a measure of how long the
     edge has been present in the graph.
+
+    whendeleted will record the run when an edge was deleted, so as to
+    not include it again so soon. By now, edges never deleted will
+    have this equal to -1.
     """
     def __init__(self):
         """Initialize XEdge (xtra edge)
         """
         self.ends = (0,1)
         self.age = 1
+        self.whendeleted = -1
 
     def increment_age(self,increment=1):
         """Increment age of the XEdge. Default: increment by 1.
@@ -19,7 +24,7 @@ class XEdge:
         self.age = self.age + increment
 
     def pretty_print(self):
-        return [self.ends,self.age]
+        return [self.ends,self.age,self.whendeleted]
 
 class XGraph:
     """Xtra Graph. It is determined by the list of its XEdges, and the
@@ -196,6 +201,17 @@ def XGraphWithEdgeAdded(X,method='cage:first'):
                                X.graph().degree(e.ends[1]),reverse=True)
                 new_edge = edgewithsums[0]
                 found = True
+        elif method == 'cage:maxdegreesum:notrecent':
+            elegible_edges =\
+                filter(lambda e:EdgeValidInCage(X.graph(),e.ends,X.g,X.k),\
+                           edges_a_priori_elegible)
+            if len(elegible_edges) > 0:
+                edgewithsums = \
+                    sorted(elegible_edges,\
+                               key=lambda e:X.graph().degree(e.ends[0])+\
+                               X.graph().degree(e.ends[1])-e.whendeleted,reverse=True)
+                new_edge = edgewithsums[0]
+                found = True
         if found:
             print "Adding ",new_edge.ends
             X.edgelist.remove(new_edge)
@@ -231,7 +247,8 @@ def SearchForGraph(X,limit=100,method='cage:first',delmethod='random'):
     """
     ExtendXGraph(X,method)
     ntry = 0
-    if method == 'cage:first' or method == 'cage:maxdegreesum':
+    if method == 'cage:first' or method == 'cage:maxdegreesum'\
+            or method == 'cage:maxdegreesum:notrecent':
         while set(X.graph().degree())<>set([X.k]) and ntry<=limit:
             ntry = ntry + 1
             print ntry
@@ -252,6 +269,7 @@ def SearchForGraph(X,limit=100,method='cage:first',delmethod='random'):
                     edgs = oedgs[:i]
             for e in edgs:
                 e.age = 0
+                e.whendeleted = ntry
                 print "Removing ",e.ends
             ExtendXGraph(X,method)
 
