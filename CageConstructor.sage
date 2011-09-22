@@ -90,16 +90,20 @@ def EdgeValidInCage(G,e,g,k):
         max([G.degree(e[0]),G.degree(e[1])]) < k
 
 def IncrementAgeOfEdges(X,increment=1):
-    """Returns a new XGraph where we increment the age of all XEdges with
-    positive age in X.
-    
-    Arguments:
-    - `X`:
-    - `increment`:
+    """Returns a new XGraph where we increment the age of all XEdges
+    with positive age in X.
     """
     for e in X.edgelist:
         if e.age>0:
             e.increment_age(increment)
+
+def ResetAgeOfEdges(X):
+    """Returns a new XGraph where we the age of all XEdges with
+    positive age is now equal to 1.
+    """
+    for e in X.edgelist:
+        if e.age>0:
+            e.age=1
 
 def TreeForCage(n,g,k):
     """Returns an XGraph with underlying graph a k-regular tree plus
@@ -268,6 +272,7 @@ def SearchForGraph(X,limit=200,method='cage:maxdegreesum:notrecent',delmethod='o
     - `delmethod`: method for deleting edges
     """
     ExtendXGraph(X,method)
+    ResetAgeOfEdges(X)
     ntry = 0
     if method == 'cage:first' or method == 'cage:maxdegreesum'\
             or method == 'cage:maxdegreesum:notrecent':
@@ -294,5 +299,3 @@ def SearchForGraph(X,limit=200,method='cage:maxdegreesum:notrecent',delmethod='o
                 e.whendeleted = ntry
                 print "Removing ",e.ends
             ExtendXGraph(X,method)
-
-            
