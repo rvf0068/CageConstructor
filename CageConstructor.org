@@ -2,7 +2,8 @@
 
 * Notes
 
-- Graph([]) gives an error (should it?)
+- Currently the program can find sucessfully cubic graphs with excess
+  and small girth.
 
 * todo
 
