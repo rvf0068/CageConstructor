@@ -7,6 +7,12 @@
 
 * todo
 
+- [ ] print more information, for example:
+  - [ ] how many feasible edges to choose from
+  - [ ] the score to decide to add, or delete an edge
+  - [ ] whether the edges added equal the edges removed, and how many
+    times this has happened.
+  
 - [ ] define a pos dictionary for trees
 - [ ] make a table of tests
 - [ ] implement (as an option) that all edges returned in the same try
