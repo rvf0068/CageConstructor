@@ -3,3 +3,7 @@
 * Notes
 
 - Graph([]) gives an error (should it?)
+
+* todo
+
+- [ ] define a pos dictionary for trees
