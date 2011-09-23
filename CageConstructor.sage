@@ -219,13 +219,14 @@ def EdgeWithDegreeSumMaxNotRecent(X,edgelist):
     """Returns the edge with maximum degree sum of its extremes,
     taking into account the last time it was deleted.
     """
-    def degree_sum_modified(e):
+    def degree_sum(e):
         g = X.graph()
         e0 = e.ends[0]
         e1 = e.ends[1]
-        return g.degree(e0)+g.degree(e1)-e.whendeleted
+        return g.degree(e0)+g.degree(e1)
 
-    edgewithsums = sorted(edgelist,key=degree_sum_modified,reverse=True)
+    edgewithsums = sorted(edgelist,key=lambda e:e.whendeleted)
+    edgewithsums = sorted(edgewithsums,key=degree_sum,reverse=True)
     return edgewithsums[0]    
 
 def ChooseDelRandomEdges(X,edgelist):
