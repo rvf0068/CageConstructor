@@ -37,8 +37,8 @@ class XGraph:
         self.edgeperm=[]  # list of XEdges that have to be added
         self.verts=0      # an integer. Vertices are labeled
                           # 0,1,..,self.verts
-        self.g=3          # girth sougth
-        self.k=3          # regularity sougth
+        self.g=3          # girth sought
+        self.k=3          # regularity sought
 
     def graph(self):
         """Returns the underlying graph of the XGraph
@@ -70,7 +70,7 @@ class XGraph:
         return self.graph().show()       
 
     def show3d(self):
-        """Applies show to the underlying graph
+        """Applies show3d to the underlying graph
         """
         return self.graph().show3d(vertex_colors=\
                                        {(0.8,0.8,0.8):self.graph().vertices()},\
@@ -106,9 +106,9 @@ def ResetAgeOfEdges(X):
             e.age=1
 
 def TreeForCage(n,g,k):
-    """Returns an XGraph with underlying graph a k-regular tree plus
-    some isolated vertices. The tree will be the base for a
-    (k,g)-cage.
+    """Returns an XGraph with n vertices and underlying graph a
+    k-regular tree plus some isolated vertices. The tree will be the
+    base for a (k,g)-cage.
     
     Arguments:
     - `n`: total number of vertices
@@ -165,8 +165,10 @@ def TreeForCage(n,g,k):
                     T.edgeperm.append(edge)
 
     auxg = Graph(n) # auxg will be the graph of the tree. We need it
-                    # so that we can assign an age to the nonpermanent
-                    # edges.
+                    # so that we can determine the edges that could
+                    # never be added to the graph. Note that only
+                    # possible edges are added to edgelist, and they
+                    # will be the only considered in the future.
     auxg.add_edges([e.ends for e in T.edgeperm])
     nonedges = auxg.complement().edges(labels=False)
 
