@@ -252,6 +252,19 @@ def ChooseDelOldRandomEdges(X,edgelist):
         edgs = edgelist
     return edgs
 
+def ChooseDelOldRandomEdgesNotRecentlyDeleted(X,edgelist):
+    """Choose edges randomly for deletion, starting with the oldest,
+    and considering whendeleted.
+    """
+    i = random.choice([1,2,3])
+    if i < len(edgelist):
+        oedgs = sorted(edgelist,key=lambda e:e.whendeleted)
+        oedgs = sorted(edgelist,key=lambda e:e.age,reverse=True)
+        edgs = oedgs[:i]
+    else:
+        edgs = edgelist
+    return edgs
+
 def EdgesCageProblem(X,edgelist):
     """Returns the edges that can be added to X in the cage
     problem ('Elegible edges').
