@@ -15,16 +15,11 @@ class XEdge:
         """Initialize XEdge (xtra edge)
         """
         self.ends = (0,1)
-        self.age = 1
-        self.whendeleted = -1
-
-    def increment_age(self,increment=1):
-        """Increment age of the XEdge. Default: increment by 1.
-        """
-        self.age = self.age + increment
+        self.whenadded = 0
+        self.whendeleted = 1
 
     def pretty_print(self):
-        return [self.ends,self.age,self.whendeleted]
+        return [self.ends,self.whenadded,self.whendeleted]
 
 class XGraph:
     """Xtra Graph. It is determined by the list of its XEdges, and the
@@ -47,7 +42,7 @@ class XGraph:
         for e in self.edgeperm:
             g.add_edge(e.ends)
         for e in self.edgelist:
-            if e.age>0:
+            if e.whenadded>0:
                 g.add_edge(e.ends)
         return g
 
@@ -89,22 +84,6 @@ def EdgeValidInCage(G,e,g,k):
     return G.distance(e[0],e[1]) >= g-1 and\
         max([G.degree(e[0]),G.degree(e[1])]) < k
 
-def IncrementAgeOfEdges(X,increment=1):
-    """Returns a new XGraph where we increment the age of all XEdges
-    with positive age in X.
-    """
-    for e in X.edgelist:
-        if e.age>0:
-            e.increment_age(increment)
-
-def ResetAgeOfEdges(X):
-    """Returns a new XGraph where we the age of all XEdges with
-    positive age is now equal to 1.
-    """
-    for e in X.edgelist:
-        if e.age>0:
-            e.age=1
-
 def TreeForCage(n,g,k):
     """Returns an XGraph with n vertices and underlying graph a
     k-regular tree plus some isolated vertices. The tree will be the
@@ -140,28 +119,24 @@ def TreeForCage(n,g,k):
         for i in range(k):
             edge = XEdge()
             edge.ends = (0,i+1)
-            edge.age = '-1'
             T.edgeperm.append(edge)
         for i in range(l):
             for j in range(k*(k-1)^i):
                 for t in range(k-1):
                     edge = XEdge()
                     edge.ends = (vlso(i)+j,vlso(i+1)+j*(k-1)+t)
-                    edge.age = '-1'
                     T.edgeperm.append(edge)
 
     if is_even(g):
         l = (g-2)/2
         edge = XEdge()
         edge.ends = (0,1)
-        edge.age = '-1'
         T.edgeperm.append(edge)
         for i in [-1]+range(l-1):
             for j in range(2*(k-1)^(i+1)):
                 for t in range(k-1):
                     edge = XEdge()
                     edge.ends = (vlse(i)+j,vlse(i+1)+j*(k-1)+t)
-                    edge.age = '-1'
                     T.edgeperm.append(edge)
 
     auxg = Graph(n) # auxg will be the graph of the tree. We need it
@@ -176,7 +151,6 @@ def TreeForCage(n,g,k):
         if EdgeValidInCage(auxg,e,g,k):
             edge = XEdge()
             edge.ends = e
-            edge.age = 0
             T.edgelist.append(edge)
     
     return T
@@ -193,7 +167,7 @@ def PossibleNewEdges(X,problem='cage'):
     """
     good_edges=[]
     edges_a_priori_elegible = \
-        [edge.ends for edge in filter(lambda e:e.age==0,X.edgelist)]
+        [edge.ends for edge in filter(lambda e:e.whendeleted==0,X.edgelist)]
     for e in edges_a_priori_elegible:
         if problem == 'cage':
             if EdgeValidInCage(X.graph(),e,X.g,X.k):
@@ -231,7 +205,7 @@ def EdgeWithDegreeSumMaxNotRecent(X,edgelist):
     edgewithsums = sorted(edgewithsums,key=degree_sum,reverse=True)
     return edgewithsums[0]    
 
-def ChooseDelRandomEdges(X,edgelist):
+def ChooseDelRandomEdges(X,edgelist,ntry=1):
     """Choose edges randomly for deletion.
     """
     i = random.choice([1,2,3])
@@ -241,25 +215,25 @@ def ChooseDelRandomEdges(X,edgelist):
         edgs = edgelist
     return edgs
 
-def ChooseDelOldRandomEdges(X,edgelist):
+def ChooseDelOldRandomEdges(X,edgelist,ntry=1):
     """Choose edges randomly for deletion, starting with the oldest.
     """
     i = random.choice([1,2,3])
     if i < len(edgelist):
-        oedgs = sorted(edgelist,key=lambda e:e.age,reverse=True)
+        oedgs = sorted(edgelist,key=lambda e: ntry-e.whenadded,reverse=True)
         edgs = oedgs[:i]
     else:
         edgs = edgelist
     return edgs
 
-def ChooseDelOldRandomEdgesNotRecentlyDeleted(X,edgelist):
+def ChooseDelOldRandomEdgesNotRecentlyDeleted(X,edgelist,ntry):
     """Choose edges randomly for deletion, starting with the oldest,
     and considering whendeleted.
     """
     i = random.choice([1,2,3])
     if i < len(edgelist):
         oedgs = sorted(edgelist,key=lambda e:e.whendeleted)
-        oedgs = sorted(edgelist,key=lambda e:e.age,reverse=True)
+        oedgs = sorted(edgelist,key=lambda e: ntry-e.whenadded,reverse=True)
         edgs = oedgs[:i]
     else:
         edgs = edgelist
@@ -273,7 +247,7 @@ def EdgesCageProblem(X,edgelist):
                       edgelist)
 
 def XGraphWithEdgeAdded(X,selectf=EdgesCageProblem,\
-                            addf=EdgeWithDegreeSumMaxNotRecent):
+                            addf=EdgeWithDegreeSumMaxNotRecent,ntry=1):
     """Given an XGraph, returns an XGraph with one more XEdge,
     according to some method.
     
@@ -281,7 +255,7 @@ def XGraphWithEdgeAdded(X,selectf=EdgesCageProblem,\
     - `X`: an X graph
     - `method`: method used to add the edge
     """
-    edges_a_priori_elegible = filter(lambda e:e.age==0,X.edgelist)
+    edges_a_priori_elegible = filter(lambda e:e.whendeleted>0,X.edgelist)
     found = False
     if len(edges_a_priori_elegible) > 0:
         elegible_edges = selectf(X,edges_a_priori_elegible)
@@ -290,10 +264,11 @@ def XGraphWithEdgeAdded(X,selectf=EdgesCageProblem,\
             found = True
         if found:
             print "Adding ",new_edge.ends
-            IncrementAgeOfEdges(X)
-            new_edge.age = 1
+            new_edge.whenadded = ntry
 
-def ExtendXGraph(X,selectf=EdgesCageProblem,addf=FirstEdgeAvailable):
+def ExtendXGraph(X,selectf=EdgesCageProblem,\
+                     addf=EdgeWithDegreeSumMaxNotRecent,\
+                     ntry=1):
     """Extend an XGraph according to some method.
      
     Arguments:
@@ -301,10 +276,10 @@ def ExtendXGraph(X,selectf=EdgesCageProblem,addf=FirstEdgeAvailable):
     - `method`: the method used
     """
     m = X.graph().size()
-    XGraphWithEdgeAdded(X,selectf,addf)
+    XGraphWithEdgeAdded(X,selectf,addf,ntry)
     while X.graph().size() > m:
         m = m+1
-        XGraphWithEdgeAdded(X,selectf,addf)
+        XGraphWithEdgeAdded(X,selectf,addf,ntry)
 
 def IsNotCageYet(X):
     """Returns True whenever the graph X with girth X.g and max degree
@@ -336,17 +311,16 @@ def SearchForGraph(X,limit=200,\
     - `delf`: a function that chooses edges to delete.
 
     """
-    ExtendXGraph(X,selectf,addf)
-    ResetAgeOfEdges(X)
-    ntry = 0
+    ntry = 1
+    ExtendXGraph(X,selectf,addf,ntry)
     while notdonef(X) and ntry<=limit:
         ntry = ntry + 1
         print ntry
         print X.graph().degree()
-        removable_edges = filter(lambda e:e.age>0,X.edgelist)
-        edgs = delf(X,removable_edges)
+        removable_edges = filter(lambda e:e.whenadded>0,X.edgelist)
+        edgs = delf(X,removable_edges,ntry)
         for e in edgs:
-            e.age = 0
+            e.whenadded = 0
             e.whendeleted = ntry
             print "Removing ",e.ends
-        ExtendXGraph(X,selectf,addf)
+        ExtendXGraph(X,selectf,addf,ntry)
