@@ -10,7 +10,7 @@
 - [ ] age can be measured with the ntry the edge was introduced, just
   like 'whendeleted'.
 
-- [ ] print more information, for example:
+- [ ] print more information, maybe in a temp .txt file, for example:
   - [ ] how many feasible edges to choose from
   - [ ] the score to decide to add, or delete an edge
   - [ ] whether the edges added equal the edges removed, and how many
