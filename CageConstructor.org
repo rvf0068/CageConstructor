@@ -10,8 +10,8 @@
 - [X] age can be measured with the ntry the edge was introduced, just
   like 'whendeleted'.
 
-- [ ] print more information, maybe in a temp .txt file, for example:
-  - [ ] how many feasible edges to choose from
+- [-] print more information, maybe in a temp .txt file, for example:
+  - [X] how many feasible edges to choose from
   - [ ] the score to decide to add, or delete an edge
   - [ ] whether the edges added equal the edges removed, and how many
     times this has happened.
@@ -28,7 +28,7 @@
 
 - [ ] make a table of tests
 
-- [ ] implement (as an option) that all edges returned in the same try
+- [X] implement (as an option) that all edges returned in the same try
   have age equal to 1, and the rest have their age incremented only
   by 1. Currently, if the edges e1, e2 are added, e1 will have age 2,
   e2 will have age 1, and the rest have their age added by 3.
