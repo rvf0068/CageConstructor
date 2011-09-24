@@ -1,3 +1,4 @@
+import os
 import random
 
 class XEdge:
@@ -324,3 +325,4 @@ def SearchForGraph(X,limit=200,\
             e.whendeleted = ntry
             print "Removing ",e.ends
         ExtendXGraph(X,selectf,addf,ntry)
+    os.system("notify-send --icon /usr/share/icons/gnome/256x256/actions/process-stop.png 'Done!'")
