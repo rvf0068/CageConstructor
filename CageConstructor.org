@@ -7,7 +7,7 @@
 
 * todo
 
-- [ ] age can be measured with the ntry the edge was introduced, just
+- [X] age can be measured with the ntry the edge was introduced, just
   like 'whendeleted'.
 
 - [ ] print more information, maybe in a temp .txt file, for example:

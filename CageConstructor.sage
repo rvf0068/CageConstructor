@@ -264,7 +264,7 @@ def XGraphWithEdgeAdded(X,selectf=EdgesCageProblem,\
             new_edge = addf(X,elegible_edges)
             found = True
         if found:
-            print "Adding ",new_edge.ends
+            print "Adding ",new_edge.ends,"out of",len(elegible_edges)
             new_edge.whenadded = ntry
 
 def ExtendXGraph(X,selectf=EdgesCageProblem,\
@@ -292,7 +292,7 @@ def SearchForGraph(X,limit=200,\
                        notdonef = IsNotCageYet,\
                        selectf = EdgesCageProblem,\
                        addf = EdgeWithDegreeSumMaxNotRecent,\
-                       delf = ChooseDelOldRandomEdges):
+                       delf = ChooseDelOldRandomEdgesNotRecentlyDeleted):
     """Continuously look for a graph with certain properties, deleting
     edges if necessary.
     
