@@ -5,6 +5,9 @@
 - Currently the program can find sucessfully cubic graphs with excess
   and small girth.
 
+- (26,7,3) is a nice test case, in 3 tries, the first took more than
+  300, the second and third between 200 and 300.
+
 * todo
 
 - [X] age can be measured with the ntry the edge was introduced, just
