@@ -34,3 +34,10 @@
   e2 will have age 1, and the rest have their age added by 3.
 
 - [ ] keep a list of the graphs produced, classified up to isomorphism.
+
+- [ ] Maybe keep 'score' of an edge as an attribute. An edge with a
+  high score would be less likely to be removed. For example, if one
+  edge were removed and such edge were the only possible edge to add,
+  such edge would have a high score. If before adding an edge there
+  were many chanches, and after adding it were much less, such an edge
+  would be 'bad'.
