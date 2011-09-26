@@ -26,7 +26,7 @@
 
 - [ ] send email (optionally) when SearchForGraph finishes
 
-- [ ] define a pos dictionary for trees, for making pictures of the
+- [X] define a pos dictionary for trees, for making pictures of the
   graphs produced
 
 - [ ] make a table of tests
