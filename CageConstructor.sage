@@ -166,25 +166,6 @@ def TreeForCage(n,g,k):
 
     return T
 
-def PossibleNewEdges(X,problem='cage'):
-    """List of edges that can be added to the graph.
-
-    This is not a method of an XGraph so that we can work in different
-    problems.
-
-    Arguments:
-    - `X`: An XGraph that should be extended
-    - `problem`: name of the problem
-    """
-    good_edges=[]
-    edges_a_priori_elegible = \
-        [edge.ends for edge in filter(lambda e:e.whendeleted==0,X.edgelist)]
-    for e in edges_a_priori_elegible:
-        if problem == 'cage':
-            if EdgeValidInCage(X.graph(),e,X.g,X.k):
-                good_edges.append(e)
-    return good_edges
-
 def FirstEdgeAvailable(X,edgelist):
     """Returns the first edge available (the first in edgelist).
     """
