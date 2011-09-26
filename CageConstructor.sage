@@ -3,7 +3,7 @@ import random
 
 class XEdge:
     """The end points of an edge, as an ordered pair, together with
-    its "age". 
+    its "age".
 
     The idea is that the "edge age" gives a measure of how long the
     edge has been present in the graph.
@@ -35,6 +35,7 @@ class XGraph:
                           # 0,1,..,self.verts
         self.g=3          # girth sought
         self.k=3          # regularity sought
+        self.pos={}
 
     def graph(self):
         """Returns the underlying graph of the XGraph
@@ -45,6 +46,7 @@ class XGraph:
         for e in self.edgelist:
             if e.whenadded>0:
                 g.add_edge(e.ends)
+        g.set_pos(self.pos)
         return g
 
     def pretty_print_edgelist(self):
@@ -63,7 +65,7 @@ class XGraph:
     def show(self):
         """Applies show to the underlying graph
         """
-        return self.graph().show()       
+        return self.graph().show()
 
     def show3d(self):
         """Applies show3d to the underlying graph
@@ -71,7 +73,7 @@ class XGraph:
         return self.graph().show3d(vertex_colors=\
                                        {(0.8,0.8,0.8):self.graph().vertices()},\
                                        color_by_label=True)
-    
+
 def EdgeValidInCage(G,e,g,k):
     """Checks if the edge e could be added to G and still have a
     (k,g)-graph.
@@ -89,56 +91,62 @@ def TreeForCage(n,g,k):
     """Returns an XGraph with n vertices and underlying graph a
     k-regular tree plus some isolated vertices. The tree will be the
     base for a (k,g)-cage.
-    
+
     Arguments:
     - `n`: total number of vertices
     - `g`: girth sought, has to be >=4.
     - `k`: regularity sought
     """
-    def vlso(s):
-        """Number of vertices up to level s. Odd case
-        
-        Arguments:
-        - `s`: level
+
+    def vls(s):
+        """Amount of vertices up to level s.
         """
-        return (k*(k-1)^s-2)/(k-2)
-    def vlse(s):
-        """Number of vertices up to level s. Even case
-        
-        Arguments:
-        - `s`: level
+        if s == -1 and is_odd(g):
+            return 0
+        else:
+            upto = [2*(((k-1)^(s+1)-1)/(k-2)),(k*(k-1)^s-2)/(k-2)]
+            return upto[g % 2]
+
+    def thepos(verts,thelen,theheigh):
+        """Return the pos dictionary for the vertices vert. thelen is
+        the length between vertices.
         """
-        return 2*(((k-1)^(s+1)-1)/(k-2))
+        nverts = len(verts)
+        u = []
+        i = 0
+        while i < nverts:
+            x = -(nverts-1)/2*thelen+i*thelen
+            u.append(x)
+            i = i+1
+        d = dict(zip(verts,zip(u,[theheigh]*nverts)))
+        return d
 
     T = XGraph()
     T.verts = n
     T.g = g
     T.k = k
 
-    if is_odd(g):
-        l = (g-3)/2
-        for i in range(k):
-            edge = XEdge()
-            edge.ends = (0,i+1)
-            T.edgeperm.append(edge)
-        for i in range(l):
-            for j in range(k*(k-1)^i):
-                for t in range(k-1):
-                    edge = XEdge()
-                    edge.ends = (vlso(i)+j,vlso(i+1)+j*(k-1)+t)
-                    T.edgeperm.append(edge)
+    tpos = {}
+    l = [(g-2)/2,(g-1)/2][g % 2]
 
-    if is_even(g):
-        l = (g-2)/2
-        edge = XEdge()
-        edge.ends = (0,1)
-        T.edgeperm.append(edge)
-        for i in [-1]+range(l-1):
-            for j in range(2*(k-1)^(i+1)):
-                for t in range(k-1):
-                    edge = XEdge()
-                    edge.ends = (vlse(i)+j,vlse(i+1)+j*(k-1)+t)
-                    T.edgeperm.append(edge)
+    for i in range(l):
+        verts = range(vls(i-1),vls(i)) # the vertices in level i
+        tpos.update(thepos(verts,2^(l-i),2*i))
+        for j in range(len(verts)):
+            if is_odd(g) and i == 0:
+                u = k
+            else:
+                u = k-1
+            if is_even(g):
+                edge = XEdge()
+                edge.ends=(0,1)
+                T.edgeperm.append(edge)
+            for t in range(u):
+                edge = XEdge()
+                edge.ends = (vls(i-1)+j,vls(i)+j*(k-1)+t)
+                T.edgeperm.append(edge)
+    tpos.update(thepos(range(vls(l-1),vls(l)),1,2*l))
+    tpos.update(thepos(range(vls(l),n),1,2*(l+2)))
 
     auxg = Graph(n) # auxg will be the graph of the tree. We need it
                     # so that we can determine the edges that could
@@ -153,7 +161,9 @@ def TreeForCage(n,g,k):
             edge = XEdge()
             edge.ends = e
             T.edgelist.append(edge)
-    
+
+    T.pos = tpos
+
     return T
 
 def PossibleNewEdges(X,problem='cage'):
@@ -161,7 +171,7 @@ def PossibleNewEdges(X,problem='cage'):
 
     This is not a method of an XGraph so that we can work in different
     problems.
-    
+
     Arguments:
     - `X`: An XGraph that should be extended
     - `problem`: name of the problem
@@ -190,7 +200,7 @@ def EdgeWithDegreeSumMax(X,edgelist):
         return g.degree(e0)+g.degree(e1)
 
     edgewithsums = sorted(edgelist,key=degree_sum,reverse=True)
-    return edgewithsums[0]    
+    return edgewithsums[0]
 
 def EdgeWithDegreeSumMaxNotRecent(X,edgelist):
     """Returns the edge with maximum degree sum of its extremes,
@@ -204,7 +214,7 @@ def EdgeWithDegreeSumMaxNotRecent(X,edgelist):
 
     edgewithsums = sorted(edgelist,key=lambda e:e.whendeleted)
     edgewithsums = sorted(edgewithsums,key=degree_sum,reverse=True)
-    return edgewithsums[0]    
+    return edgewithsums[0]
 
 def ChooseDelRandomEdges(X,edgelist,ntry=1):
     """Choose edges randomly for deletion.
@@ -251,7 +261,7 @@ def XGraphWithEdgeAdded(X,selectf=EdgesCageProblem,\
                             addf=EdgeWithDegreeSumMaxNotRecent,ntry=1):
     """Given an XGraph, returns an XGraph with one more XEdge,
     according to some method.
-    
+
     Arguments:
     - `X`: an X graph
     - `method`: method used to add the edge
@@ -271,7 +281,7 @@ def ExtendXGraph(X,selectf=EdgesCageProblem,\
                      addf=EdgeWithDegreeSumMaxNotRecent,\
                      ntry=1):
     """Extend an XGraph according to some method.
-     
+
     Arguments:
     - `X`: the XGraph
     - `method`: the method used
@@ -295,10 +305,10 @@ def SearchForGraph(X,limit=200,\
                        delf = ChooseDelOldRandomEdgesNotRecentlyDeleted):
     """Continuously look for a graph with certain properties, deleting
     edges if necessary.
-    
+
     Arguments:
     - `X`: an XGraph
- 
+
     - `limit`: maximum number of tries
 
     - `notdonef`: a boolean function that returns True if the graph
