@@ -169,19 +169,19 @@ def degreeSum(X,e):
     e1 = e.ends[1]
     return g.degree(e0)+g.degree(e1)
 
-def FirstEdgeAvailable(X,edgelist):
+def First(X,edgelist):
     """Returns the first edge available (the first in edgelist).
     """
     return edgelist[0]
 
-def EdgeWithDegreeSumMax(X,edgelist):
+def DegreeSumMax(X,edgelist):
     """Returns the edge with maximum degree sum of its extremes.
     """
     edgewithsums = sorted(edgelist,\
                               key=lambda e:degreeSum(X,e),reverse=True)
     return edgewithsums[0]
 
-def EdgeWithDegreeSumMaxNotRecent(X,edgelist):
+def DegreeSumMaxNotRecent(X,edgelist):
     """Returns the edge with maximum degree sum of its extremes,
     taking into account the last time it was deleted.
     """
@@ -190,7 +190,7 @@ def EdgeWithDegreeSumMaxNotRecent(X,edgelist):
                               key=lambda e:degreeSum(X,e),reverse=True)
     return edgewithsums[0]
 
-def ChooseDelRandomEdges(X,edgelist,ntry=1):
+def Random(X,edgelist,ntry=1):
     """Choose edges randomly for deletion.
     """
     i = random.choice([1,2,3])
@@ -200,7 +200,7 @@ def ChooseDelRandomEdges(X,edgelist,ntry=1):
         edgs = edgelist
     return edgs
 
-def ChooseDelOldRandomEdges(X,edgelist,ntry=1):
+def OldAndRandom(X,edgelist,ntry=1):
     """Choose edges randomly for deletion, starting with the oldest.
     """
     i = random.choice([1,2,3])
@@ -211,7 +211,7 @@ def ChooseDelOldRandomEdges(X,edgelist,ntry=1):
         edgs = edgelist
     return edgs
 
-def ChooseDelOldRandomEdgesNotRecentlyDeleted(X,edgelist,ntry):
+def OldAndRandomNotRecentlyDeleted(X,edgelist,ntry):
     """Choose edges randomly for deletion, starting with the oldest,
     and considering whendeleted.
     """
@@ -230,14 +230,15 @@ def EdgesCageProblem(X,edgelist):
     """
     return filter(lambda e:EdgeValidInCage(X,e,X.g,X.k),edgelist)
 
-def XGraphWithEdgeAdded(X,selectf=EdgesCageProblem,\
-                            addf=EdgeWithDegreeSumMaxNotRecent,ntry=1):
+def XGraphWithEdgeAdded(X,selectf,addf,ntry=1):
     """Given an XGraph, returns an XGraph with one more XEdge,
     according to some method.
 
     Arguments:
     - `X`: an X graph
-    - `method`: method used to add the edge
+    - `selectf`: the method used to select edges
+    - `addf`: the method used to add edges
+    - `ntry`: the stage
     """
     edges_a_priori_elegible = filter(lambda e:e.whendeleted>0,X.edgelist)
     found = False
@@ -250,14 +251,14 @@ def XGraphWithEdgeAdded(X,selectf=EdgesCageProblem,\
             print "Adding ",new_edge.ends,"out of",len(elegible_edges)
             new_edge.whenadded = ntry
 
-def ExtendXGraph(X,selectf=EdgesCageProblem,\
-                     addf=EdgeWithDegreeSumMaxNotRecent,\
-                     ntry=1):
+def ExtendXGraph(X,selectf,addf,ntry=1):
     """Extend an XGraph according to some method.
 
     Arguments:
     - `X`: the XGraph
-    - `method`: the method used
+    - `selectf`: the method used to select edges
+    - `addf`: the method used to add edges
+    - `ntry`: the stage
     """
     m = X.graph().size()
     XGraphWithEdgeAdded(X,selectf,addf,ntry)
@@ -271,11 +272,15 @@ def IsNotCageYet(X):
     """
     return set(X.graph().degree()) <> set([X.k])
 
+OneEdgeF = (First,DegreeSumMax,DegreeSumMaxNotRecent)
+
+EdgesF = (Random,OldAndRandom,OldAndRandomNotRecentlyDeleted)
+
 def SearchForGraph(X,limit=200,\
                        notdonef = IsNotCageYet,\
                        selectf = EdgesCageProblem,\
-                       addf = EdgeWithDegreeSumMaxNotRecent,\
-                       delf = ChooseDelOldRandomEdgesNotRecentlyDeleted):
+                       addf = OneEdgeF[2],\
+                       delf = EdgesF[2]):
     """Continuously look for a graph with certain properties, deleting
     edges if necessary.
 
