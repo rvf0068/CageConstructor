@@ -166,6 +166,14 @@ def TreeForCage(n,g,k):
 
     return T
 
+def degreeSum(X,e):
+    """Return the sum of the degrees of the extremums of e.
+    """
+    g = X.graph()
+    e0 = e.ends[0]
+    e1 = e.ends[1]
+    return g.degree(e0)+g.degree(e1)
+
 def FirstEdgeAvailable(X,edgelist):
     """Returns the first edge available (the first in edgelist).
     """
@@ -174,27 +182,17 @@ def FirstEdgeAvailable(X,edgelist):
 def EdgeWithDegreeSumMax(X,edgelist):
     """Returns the edge with maximum degree sum of its extremes.
     """
-    def degree_sum(e):
-        g = X.graph()
-        e0 = e.ends[0]
-        e1 = e.ends[1]
-        return g.degree(e0)+g.degree(e1)
-
-    edgewithsums = sorted(edgelist,key=degree_sum,reverse=True)
+    edgewithsums = sorted(edgelist,\
+                              key=lambda e:degreeSum(X,e),reverse=True)
     return edgewithsums[0]
 
 def EdgeWithDegreeSumMaxNotRecent(X,edgelist):
     """Returns the edge with maximum degree sum of its extremes,
     taking into account the last time it was deleted.
     """
-    def degree_sum(e):
-        g = X.graph()
-        e0 = e.ends[0]
-        e1 = e.ends[1]
-        return g.degree(e0)+g.degree(e1)
-
     edgewithsums = sorted(edgelist,key=lambda e:e.whendeleted)
-    edgewithsums = sorted(edgewithsums,key=degree_sum,reverse=True)
+    edgewithsums = sorted(edgewithsums,\
+                              key=lambda e:degreeSum(X,e),reverse=True)
     return edgewithsums[0]
 
 def ChooseDelRandomEdges(X,edgelist,ntry=1):
