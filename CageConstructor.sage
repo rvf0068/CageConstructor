@@ -225,7 +225,7 @@ def EdgesCageProblem(X,edgelist):
     """
     return filter(lambda e:EdgeValidInCage(X,e,X.g,X.k),edgelist)
 
-def XGraphWithEdgeAdded(X,selectf,addf,ntry=1):
+def XGraphWithEdgeAdded(X,selectf,addf,ntry):
     """Given an XGraph, returns an XGraph with one more XEdge,
     according to some method.
 
@@ -246,7 +246,7 @@ def XGraphWithEdgeAdded(X,selectf,addf,ntry=1):
             print "Adding ",new_edge.ends,"out of",len(elegible_edges)
             new_edge.whenadded = ntry
 
-def ExtendXGraph(X,selectf,addf,ntry=1):
+def ExtendXGraph(X,selectf,addf,ntry):
     """Extend an XGraph according to some method.
 
     Arguments:
@@ -298,7 +298,6 @@ def SearchForGraph(X,limit=200,\
     ntry = 1
     ExtendXGraph(X,selectf,addf,ntry)
     while notdonef(X) and ntry<=limit:
-        ntry = ntry + 1
         print ntry
         print X.graph().degree()
         removable_edges = filter(lambda e:e.whenadded>0,X.edgelist)
@@ -308,5 +307,6 @@ def SearchForGraph(X,limit=200,\
             e.whendeleted = ntry
             print "Removing ",e.ends
         ExtendXGraph(X,selectf,addf,ntry)
+        ntry = ntry + 1
     icon = '/usr/share/icons/gnome/256x256/actions/process-stop.png'
     os.system("notify-send --icon "+icon+" 'Done!'")
