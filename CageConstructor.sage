@@ -354,7 +354,10 @@ def SearchForGraph(X,limit=200,\
     else:
         icon = '/usr/share/icons/gnome/48x48/emotes/face-laugh.png'
         os.system("notify-send --icon "+icon+" 'Found a suitable graph!'")
+    sound = '/usr/share/sounds/ubuntu/stereo/phone-incoming-call.ogg'
+    os.system("mplayer -really-quiet "+sound+" 2> /dev/null")
 
 # Local Variables:
 # eval: (yas/minor-mode)
+# eval: (whitespace-mode)
 # End:
