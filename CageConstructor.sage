@@ -164,19 +164,19 @@ def degreeSum(X,e):
     e1 = e.ends[1]
     return g.degree(e0)+g.degree(e1)
 
-def First(X,edgelist):
+def First(X,edgelist,ntry):
     """Returns the first edge available (the first in edgelist).
     """
     return edgelist[0]
 
-def DegreeSumMax(X,edgelist):
+def DegreeSumMax(X,edgelist,ntry):
     """Returns the edge with maximum degree sum of its extremes.
     """
     edgewithsums = sorted(edgelist,\
                               key=lambda e:degreeSum(X,e),reverse=True)
     return edgewithsums[0]
 
-def DegreeSumMaxNotRecent(X,edgelist):
+def DegreeSumMaxNotRecent(X,edgelist,ntry):
     """Returns the edge with maximum degree sum of its extremes,
     taking into account the last time it was deleted.
     """
@@ -184,6 +184,26 @@ def DegreeSumMaxNotRecent(X,edgelist):
     edgewithsums = sorted(edgewithsums,\
                               key=lambda e:degreeSum(X,e),reverse=True)
     return edgewithsums[0]
+
+def DegreeSumMaxNotJustRemoved(X,edgelist,ntry):
+    """Returns the edge with maximum degree sum of its extremes,
+    taking into account the last time it was deleted.
+    """
+    edgewithsums = sorted(edgelist,key=lambda e:e.whendeleted)
+    edgewithsums = sorted(edgewithsums,\
+                              key=lambda e:degreeSum(X,e),reverse=True)
+    # print "Scores. DSums:",map(lambda e:(degreeSum(X,e),e.ends),edgewithsums),"whendeleted:",\
+    #     map(lambda e:e.whendeleted,edgewithsums)
+    i = 0
+    while i<len(edgewithsums) and edgewithsums[i].whendeleted == ntry:
+        #print "vertex ",i,"whendeleted:",edgewithsums[i].whendeleted,"ntry",ntry
+        #print edgewithsums[i].ends," checked."
+        i = i+1
+    if i<len(edgewithsums):
+        return edgewithsums[i]
+    else:
+        print "No other choice"
+        return edgewithsums[i-1]
 
 def Random(X,edgelist,ntry=1):
     """Choose edges randomly for deletion.
@@ -219,6 +239,24 @@ def OldAndRandomNotRecentlyDeleted(X,edgelist,ntry):
         edgs = edgelist
     return edgs
 
+def AlternateDeletionMode(X,edgelist,ntry):
+    """Choose edge for deletion, alternating proportional to age with
+    inversely proportional to age.
+    """
+    i = random.choice([1,2,3])
+    if i < len(edgelist):
+        if is_odd(ntry):
+            print "Removing old"
+            oedgs = sorted(edgelist,key=lambda e: ntry-e.whenadded,reverse=True)
+            print "Ages: ",map(lambda e: ntry-e.whenadded,oedgs)
+            edgs = oedgs[:i]
+        else:
+            print "Removing recent"
+            oedgs = sorted(edgelist,key=lambda e: ntry-e.whenadded)
+            print "Ages: ",map(lambda e: (e.ends,ntry-e.whenadded),oedgs)
+            edgs = oedgs[:i]
+        return edgs
+
 def EdgesCageProblem(X,edgelist):
     """Returns the edges that can be added to X in the cage
     problem ('Elegible edges').
@@ -240,7 +278,7 @@ def XGraphWithEdgeAdded(X,selectf,addf,ntry):
     if len(edges_a_priori_elegible) > 0:
         elegible_edges = selectf(X,edges_a_priori_elegible)
         if len(elegible_edges) > 0:
-            new_edge = addf(X,elegible_edges)
+            new_edge = addf(X,elegible_edges,ntry)
             found = True
         if found:
             print "Adding ",new_edge.ends,"out of",len(elegible_edges)
@@ -267,14 +305,16 @@ def IsNotCageYet(X):
     """
     return set(X.graph().degree()) <> set([X.k])
 
-OneEdgeF = (First,DegreeSumMax,DegreeSumMaxNotRecent)
+OneEdgeF = (First,DegreeSumMax,DegreeSumMaxNotRecent,\
+                DegreeSumMaxNotJustRemoved)
 
-EdgesF = (Random,OldAndRandom,OldAndRandomNotRecentlyDeleted)
+EdgesF = (Random,OldAndRandom,OldAndRandomNotRecentlyDeleted,\
+              AlternateDeletionMode)
 
 def SearchForGraph(X,limit=200,\
                        notdonef = IsNotCageYet,\
                        selectf = EdgesCageProblem,\
-                       addf = OneEdgeF[2],\
+                       addf = OneEdgeF[3],\
                        delf = EdgesF[2]):
     """Continuously look for a graph with certain properties, deleting
     edges if necessary.
@@ -308,5 +348,13 @@ def SearchForGraph(X,limit=200,\
             print "Removing ",e.ends
         ExtendXGraph(X,selectf,addf,ntry)
         ntry = ntry + 1
-    icon = '/usr/share/icons/gnome/256x256/actions/process-stop.png'
-    os.system("notify-send --icon "+icon+" 'Done!'")
+    if notdonef(X):
+        icon = '/usr/share/icons/gnome/256x256/emotes/face-crying.png'
+        os.system("notify-send --icon "+icon+" 'Could not find a suitable graph'")
+    else:
+        icon = '/usr/share/icons/gnome/256x256/emotes/face-laugh.png'
+        os.system("notify-send --icon "+icon+" 'Found a suitable graph!'")
+
+# Local Variables:
+# eval: (yas/minor-mode)
+# End:
