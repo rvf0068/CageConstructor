@@ -2,11 +2,33 @@
 
 * Notes
 
+** misc
+
 - Currently the program can find sucessfully cubic graphs with excess
   and small girth.
 
 - (26,7,3) is a nice test case, in 3 tries, the first took more than
   300, the second and third between 200 and 300.
+
+** tests
+
+for (34,8,3), limit=500
+
+| OneEdgeF | EdgesF | Results           |
+|----------+--------+-------------------|
+|        3 |      3 | -,-,-,-,-         |
+|        3 |      2 | 249,303,288,152,- |
+|        3 |      1 | -,-,-,287,43      |
+|        2 |      3 | -,-,414,433,-     |
+|        2 |      2 | -                 | 
+
+| OneEdgeF/EdgesF | 1                 | 2                 | 3             |
+|-----------------+-------------------+-------------------+---------------|
+|               1 |                   | -,                | -,-,-,-,-     |
+|               2 | -,449,185,114,433 | -,129,-,270,497   | -,-,414,433,- |
+|               3 | -,-,-,287,43      | 249,303,288,152,- | -,-,-,-,-     |
+
+
 
 * todo
 
