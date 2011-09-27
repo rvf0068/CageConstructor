@@ -3,21 +3,26 @@ import random
 
 class XEdge:
     """The end points of an edge, as an ordered pair, together with
-    its "age".
+    information on the stage at which the edge last appeared and last
+    disappeared.
 
-    The idea is that the "edge age" gives a measure of how long the
-    edge has been present in the graph.
+    whenadded is >0 if and only if the edge is present in the graph
+    but the edge could be removed. In this case it indicates the stage
+    at which it was added. It is =0 if the edge is not present, but
+    could be added. It is -1 if the edge is 'permanent'.
 
-    whendeleted will record the run when an edge was deleted, so as to
-    not include it again so soon. By now, edges never deleted will
-    have this equal to -1.
+    whendeleted records the stage when an edge was deleted, so as to
+    not include it again so soon.
+
+    By convention 'permanent' edges will have whenadded=-1,
+    whendeleted=-1.
     """
-    def __init__(self):
+    def __init__(self,ends=(0,1),whenadded=-1,whendeleted=-1):
         """Initialize XEdge (xtra edge)
         """
-        self.ends = (0,1)
-        self.whenadded = 0
-        self.whendeleted = 1
+        self.ends = ends
+        self.whenadded = whenadded
+        self.whendeleted = whendeleted
 
     def pretty_print(self):
         return [self.ends,self.whenadded,self.whendeleted]
@@ -26,16 +31,16 @@ class XGraph:
     """Xtra Graph. It is determined by the list of its XEdges, and the
     number of vertices.
     """
-    def __init__(self):
+    def __init__(self,verts,g,k,edgelist=[],edgeperm=[],pos={}):
         """Initialize Xtra Graph
         """
-        self.edgelist=[]  # list of XEdges that could be added
-        self.edgeperm=[]  # list of XEdges that have to be added
-        self.verts=0      # an integer. Vertices are labeled
-                          # 0,1,..,self.verts
-        self.g=3          # girth sought
-        self.k=3          # regularity sought
-        self.pos={}
+        self.edgelist=edgelist  # list of XEdges that could be added
+        self.edgeperm=edgeperm  # list of XEdges that have to be added
+        self.verts=verts        # an integer. Vertices are labeled
+                                # 0,1,..,self.verts
+        self.g=g                # girth sought
+        self.k=k                # regularity sought
+        self.pos=pos
 
     def graph(self):
         """Returns the underlying graph of the XGraph
@@ -123,41 +128,31 @@ def TreeForCage(n,g,k):
         d = dict(zip(verts,zip(u,[theheigh]*nverts)))
         return d
 
-    T = XGraph()
-    T.verts = n
-    T.g = g
-    T.k = k
-
-    tpos = {}
+    T = XGraph(n,g,k)
     l = [(g-2)/2,(g-1)/2][g % 2]
 
     for i in range(l):
         verts = range(vls(i-1),vls(i)) # the vertices in level i
-        tpos.update(thepos(verts,2^(l-i),2*i))
+        T.pos.update(thepos(verts,2^(l-i),2*i))
         for j in range(len(verts)):
             if is_odd(g) and i == 0:
                 u = k
             else:
                 u = k-1
             if is_even(g):
-                edge = XEdge()
-                edge.ends=(0,1)
-                T.edgeperm.append(edge)
+                T.edgeperm.append(XEdge((0,1)))
             for t in range(u):
-                edge = XEdge()
-                edge.ends = (vls(i-1)+j,vls(i)+j*(k-1)+t)
-                T.edgeperm.append(edge)
-    tpos.update(thepos(range(vls(l-1),vls(l)),1,2*l))
-    tpos.update(thepos(range(vls(l),n),1,2*(l+2)))
-    T.pos = tpos
+                T.edgeperm.append(XEdge((vls(i-1)+j,vls(i)+j*(k-1)+t)))
+    T.pos.update(thepos(range(vls(l-1),vls(l)),1,2*l))
+    T.pos.update(thepos(range(vls(l),n),1,2*(l+2)))
 
     # we determine the edges that could possible be added to T
     nonedges = T.graph().complement().edges(labels=False)
     for e in nonedges:
-        edge = XEdge()
-        edge.ends = e
+        edge = XEdge(e)
         if EdgeValidInCage(T,edge,g,k):
-             T.edgelist.append(edge)
+            edge.whenadded=0
+            T.edgelist.append(edge)
 
     return T
 
@@ -240,7 +235,7 @@ def XGraphWithEdgeAdded(X,selectf,addf,ntry=1):
     - `addf`: the method used to add edges
     - `ntry`: the stage
     """
-    edges_a_priori_elegible = filter(lambda e:e.whendeleted>0,X.edgelist)
+    edges_a_priori_elegible = filter(lambda e:e.whenadded==0,X.edgelist)
     found = False
     if len(edges_a_priori_elegible) > 0:
         elegible_edges = selectf(X,edges_a_priori_elegible)
