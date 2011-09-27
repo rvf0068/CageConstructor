@@ -74,18 +74,20 @@ class XGraph:
                                        {(0.8,0.8,0.8):self.graph().vertices()},\
                                        color_by_label=True)
 
-def EdgeValidInCage(G,e,g,k):
-    """Checks if the edge e could be added to G and still have a
+def EdgeValidInCage(X,e,g,k):
+    """Checks if the XEdge e could be added to X and still have a
     (k,g)-graph.
     
     Arguments:
-    - `G`: a Sage graph
-    - `e`: a tuple
+    - `X`: an XGraph
+    - `e`: an XEdge
     - `g`: girth
     - `k`: regularity
     """
-    return G.distance(e[0],e[1]) >= g-1 and\
-        max([G.degree(e[0]),G.degree(e[1])]) < k
+    G = X.graph()
+    e0 = e.ends[0]
+    e1 = e.ends[1]
+    return G.distance(e0,e1) >= g-1 and max([G.degree(e0),G.degree(e1)]) < k
 
 def TreeForCage(n,g,k):
     """Returns an XGraph with n vertices and underlying graph a
@@ -147,22 +149,15 @@ def TreeForCage(n,g,k):
                 T.edgeperm.append(edge)
     tpos.update(thepos(range(vls(l-1),vls(l)),1,2*l))
     tpos.update(thepos(range(vls(l),n),1,2*(l+2)))
-
-    auxg = Graph(n) # auxg will be the graph of the tree. We need it
-                    # so that we can determine the edges that could
-                    # never be added to the graph. Note that only
-                    # possible edges are added to edgelist, and they
-                    # will be the only considered in the future.
-    auxg.add_edges([e.ends for e in T.edgeperm])
-    nonedges = auxg.complement().edges(labels=False)
-
-    for e in nonedges:
-        if EdgeValidInCage(auxg,e,g,k):
-            edge = XEdge()
-            edge.ends = e
-            T.edgelist.append(edge)
-
     T.pos = tpos
+
+    # we determine the edges that could possible be added to T
+    nonedges = T.graph().complement().edges(labels=False)
+    for e in nonedges:
+        edge = XEdge()
+        edge.ends = e
+        if EdgeValidInCage(T,edge,g,k):
+             T.edgelist.append(edge)
 
     return T
 
@@ -233,8 +228,7 @@ def EdgesCageProblem(X,edgelist):
     """Returns the edges that can be added to X in the cage
     problem ('Elegible edges').
     """
-    return filter(lambda e:EdgeValidInCage(X.graph(),e.ends,X.g,X.k),\
-                      edgelist)
+    return filter(lambda e:EdgeValidInCage(X,e,X.g,X.k),edgelist)
 
 def XGraphWithEdgeAdded(X,selectf=EdgesCageProblem,\
                             addf=EdgeWithDegreeSumMaxNotRecent,ntry=1):
