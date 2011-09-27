@@ -349,10 +349,10 @@ def SearchForGraph(X,limit=200,\
         ExtendXGraph(X,selectf,addf,ntry)
         ntry = ntry + 1
     if notdonef(X):
-        icon = '/usr/share/icons/gnome/256x256/emotes/face-crying.png'
+        icon = '/usr/share/icons/gnome/48x48/emotes/face-crying.png'
         os.system("notify-send --icon "+icon+" 'Could not find a suitable graph'")
     else:
-        icon = '/usr/share/icons/gnome/256x256/emotes/face-laugh.png'
+        icon = '/usr/share/icons/gnome/48x48/emotes/face-laugh.png'
         os.system("notify-send --icon "+icon+" 'Found a suitable graph!'")
 
 # Local Variables:
