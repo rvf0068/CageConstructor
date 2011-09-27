@@ -34,12 +34,12 @@ class XGraph:
     def __init__(self,verts,g,k,edgelist=[],edgeperm=[],pos={}):
         """Initialize Xtra Graph
         """
-        self.edgelist=edgelist  # list of XEdges that could be added
-        self.edgeperm=edgeperm  # list of XEdges that have to be added
         self.verts=verts        # an integer. Vertices are labeled
                                 # 0,1,..,self.verts
         self.g=g                # girth sought
         self.k=k                # regularity sought
+        self.edgelist=edgelist  # list of XEdges that could be added
+        self.edgeperm=edgeperm  # list of XEdges that have to be added
         self.pos=pos
 
     def graph(self):
@@ -128,7 +128,7 @@ def TreeForCage(n,g,k):
         d = dict(zip(verts,zip(u,[theheigh]*nverts)))
         return d
 
-    T = XGraph(n,g,k)
+    T = XGraph(n,g,k,edgelist=[],edgeperm=[],pos={})
     l = [(g-2)/2,(g-1)/2][g % 2]
 
     for i in range(l):
