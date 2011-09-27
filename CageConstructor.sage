@@ -337,9 +337,14 @@ def SearchForGraph(X,limit=200,\
     """
     ntry = 1
     ExtendXGraph(X,selectf,addf,ntry)
+    listofgraphs=[X.graph()]
     while notdonef(X) and ntry<=limit:
         print ntry
         print X.graph().degree()
+        for g in listofgraphs:
+            if not(g.is_isomorphic(X.graph())):
+                listofgraphs.append(X.graph())
+                break
         removable_edges = filter(lambda e:e.whenadded>0,X.edgelist)
         edgs = delf(X,removable_edges,ntry)
         for e in edgs:
@@ -350,12 +355,14 @@ def SearchForGraph(X,limit=200,\
         ntry = ntry + 1
     if notdonef(X):
         icon = '/usr/share/icons/gnome/48x48/emotes/face-crying.png'
-        os.system("notify-send --icon "+icon+" 'Could not find a suitable graph'")
+        os.system("notify-send --icon "+icon+\
+                      " 'Could not find a suitable graph'")
     else:
         icon = '/usr/share/icons/gnome/48x48/emotes/face-laugh.png'
         os.system("notify-send --icon "+icon+" 'Found a suitable graph!'")
     sound = '/usr/share/sounds/ubuntu/stereo/phone-incoming-call.ogg'
     os.system("mplayer -really-quiet "+sound+" 2> /dev/null")
+    return listofgraphs
 
 # Local Variables:
 # eval: (yas/minor-mode)
