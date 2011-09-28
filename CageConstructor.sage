@@ -340,11 +340,7 @@ def SearchForGraph(X,limit=200,\
     listofgraphs=[X.graph()]
     while notdonef(X) and ntry<=limit:
         print ntry
-        print X.graph().degree()
-        for g in listofgraphs:
-            if not(g.is_isomorphic(X.graph())):
-                listofgraphs.append(X.graph())
-                break
+        print X.graph().degree_histogram()
         removable_edges = filter(lambda e:e.whenadded>0,X.edgelist)
         edgs = delf(X,removable_edges,ntry)
         for e in edgs:
@@ -353,6 +349,17 @@ def SearchForGraph(X,limit=200,\
             print "Removing ",e.ends
         ExtendXGraph(X,selectf,addf,ntry)
         ntry = ntry + 1
+        i = 0
+        isit = False
+        while i<len(listofgraphs) and not(isit):
+            if X.graph().is_isomorphic(listofgraphs[i]):
+                print "Graph", i,"of",len(listofgraphs)
+                isit = True
+            else:
+                i = i+1
+        if not(isit):
+            listofgraphs.append(X.graph())
+            print "New graph!"
     if notdonef(X):
         icon = '/usr/share/icons/gnome/48x48/emotes/face-crying.png'
         os.system("notify-send --icon "+icon+\
