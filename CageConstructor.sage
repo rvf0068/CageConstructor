@@ -372,6 +372,6 @@ def SearchForGraph(X,limit=200,\
     return listofgraphs
 
 # Local Variables:
-# eval: (yas/minor-mode)
-# eval: (whitespace-mode)
+# eval: (yas/minor-mode 1)
+# eval: (whitespace-mode 1)
 # End:
