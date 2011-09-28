@@ -82,7 +82,7 @@ class XGraph:
 def EdgeValidInCage(X,e,g,k):
     """Checks if the XEdge e could be added to X and still have a
     (k,g)-graph.
-    
+
     Arguments:
     - `X`: an XGraph
     - `e`: an XEdge
@@ -300,8 +300,7 @@ def ExtendXGraph(X,selectf,addf,ntry):
         XGraphWithEdgeAdded(X,selectf,addf,ntry)
 
 def IsNotCageYet(X):
-    """Returns True whenever the graph X with girth X.g and max degree
-    less than k is not a cage.
+    """Returns True whenever the XGraph X determines a cage.
     """
     return set(X.graph().degree()) <> set([X.k])
 
@@ -315,7 +314,9 @@ def SearchForGraph(X,limit=200,\
                        notdonef = IsNotCageYet,\
                        selectf = EdgesCageProblem,\
                        addf = OneEdgeF[3],\
-                       delf = EdgesF[2]):
+                       delf = EdgesF[2],\
+                       saveList = True,\
+                       report = True):
     """Continuously look for a graph with certain properties, deleting
     edges if necessary.
 
@@ -334,6 +335,9 @@ def SearchForGraph(X,limit=200,\
 
     - `delf`: a function that chooses edges to delete.
 
+    - `saveList`: keep a list of the different graphs produced.
+
+    - `report`: if True, notifies of the result of the search.
     """
     ntry = 1
     ExtendXGraph(X,selectf,addf,ntry)
@@ -349,29 +353,56 @@ def SearchForGraph(X,limit=200,\
             print "Removing ",e.ends
         ExtendXGraph(X,selectf,addf,ntry)
         ntry = ntry + 1
-        i = 0
-        isit = False
-        while i<len(listofgraphs) and not(isit):
-            if X.graph().is_isomorphic(listofgraphs[i]):
-                print "Graph", i,"of",len(listofgraphs)
-                isit = True
-            else:
-                i = i+1
-        if not(isit):
-            listofgraphs.append(X.graph())
-            print "New graph!"
-    if notdonef(X):
-        icon = '/usr/share/icons/gnome/48x48/emotes/face-crying.png'
-        os.system("notify-send --icon "+icon+\
-                      " 'Could not find a suitable graph'")
-    else:
-        icon = '/usr/share/icons/gnome/48x48/emotes/face-laugh.png'
-        os.system("notify-send --icon "+icon+" 'Found a suitable graph!'")
-    sound = '/usr/share/sounds/ubuntu/stereo/phone-incoming-call.ogg'
-    os.system("mplayer -really-quiet "+sound+" 2> /dev/null")
+        if saveList:
+            i = 0
+            isit = False
+            while i<len(listofgraphs) and not(isit):
+                if X.graph().is_isomorphic(listofgraphs[i]):
+                    isit = True
+                    if i == 0:
+                        print "Same as the previous graph"
+                    else:
+                        print "Graph", i,"of",len(listofgraphs)
+                else:
+                    i = i+1
+            if not(isit):
+                listofgraphs.insert(0,X.graph())
+                print "New graph!. There are now",
+                print len(listofgraphs),"graphs"
+    if report:
+        if notdonef(X):
+            icon = '/usr/share/icons/gnome/48x48/emotes/face-crying.png'
+            os.system("notify-send --icon "+icon+\
+                          " 'Could not find a suitable graph'")
+            print "Could not find a suitable graph"
+        else:
+            icon = '/usr/share/icons/gnome/48x48/emotes/face-laugh.png'
+            os.system("notify-send --icon "+icon+" 'Found a suitable graph!'")
+            print "Found a suitable graph!"
     return listofgraphs
+
+def ManyTests(X,tests=5,limit=10,\
+                  notdonef = IsNotCageYet,\
+                  selectf = EdgesCageProblem,\
+                  addf = OneEdgeF[3],\
+                  delf = EdgesF[2],\
+                  saveList = True,
+                  report = False):
+    success=[]
+    for i in range(tests):
+        t=deepcopy(X)
+        l=SearchForGraph(t,limit,notdonef,selectf,addf,delf,saveList,report)
+        gra = l[len(l)-1]
+        G = XGraph(t.verts,t.g,t.k,edgelist=t.edgelist,edgeperm=t.edgeperm)
+        if not(notdonef(G)):
+            print "Success!!"
+            success.append(("OK",len(l)))
+        else:
+            success.append("Fail")
+    return success
 
 # Local Variables:
 # eval: (yas/minor-mode 1)
 # eval: (whitespace-mode 1)
+# eval: (auto-revert-mode 1)
 # End:
