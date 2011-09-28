@@ -386,19 +386,38 @@ def ManyTests(X,tests=5,limit=10,\
                   selectf = EdgesCageProblem,\
                   addf = OneEdgeF[3],\
                   delf = EdgesF[2],\
-                  saveList = True,
-                  report = False):
+                  saveList = True,\
+                  report = False,\
+                  writeResults = True\
+                  ):
     success=[]
+    output = "/home/rafael/Dropbox/sage/resultsCage.org"
+    theFile = open(output,'w')
+
+    if writeResults:
+        theFile.write("#+title: ("+str(X.verts)+","+str(X.g)+","
+                      +str(X.k)+")\n\n")
+
     for i in range(tests):
+        if writeResults:
+            theFile.write("* Attempt "+str(i+1)+"\n\n")
+        print "============================== Attempt %s ==========" % str(i+1)
         t=deepcopy(X)
         l=SearchForGraph(t,limit,notdonef,selectf,addf,delf,saveList,report)
-        gra = l[len(l)-1]
-        G = XGraph(t.verts,t.g,t.k,edgelist=t.edgelist,edgeperm=t.edgeperm)
-        if not(notdonef(G)):
+        if not(notdonef(t)):
             print "Success!!"
             success.append(("OK",len(l)))
+            if writeResults:
+                theFile.write("The graph found is: "
+                              +t.graph().graph6_string()+"\n")
+                theFile.write("There were "+str(len(l))+" different graphs\n\n")
         else:
+            if writeResults:
+                theFile.write("No graph found.\n")
+                theFile.write("There were "+str(len(l))+" different graphs\n\n")
             success.append("Fail")
+    if writeResults:
+        theFile.close()
     return success
 
 # Local Variables:
