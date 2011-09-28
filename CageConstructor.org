@@ -23,6 +23,10 @@
 
 * todo
 
+- [ ] repeat the tests (only with the best algorithm), with (30,5,5)
+  and limit 500, but this time recording how many different graphs up
+  to isomorphism were obtained. 
+
 - [X] age can be measured with the ntry the edge was introduced, just
   like 'whendeleted'.
 
