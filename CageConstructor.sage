@@ -392,11 +392,6 @@ def ManyTests(X,tests=5,limit=10,\
                   output = "/home/rafael/Dropbox/sage/resultsCage.org"
                   ):
     success=[]
-    #theFile = open(output,'w')
-    # if writeResults:
-    #     open(output,'a').write("#+title: ("+str(X.verts)+","+str(X.g)+","
-    #                   +str(X.k)+")\n\n")
-
     for i in range(tests):
         if writeResults:
             open(output,'a').write("** Attempt "+str(i+1)+"\n\n")
@@ -415,8 +410,6 @@ def ManyTests(X,tests=5,limit=10,\
                 open(output,'a').write("No graph found.\n")
                 open(output,'a').write("There were "+str(len(l))+" different graphs\n\n")
             success.append("Fail")
-    # if writeResults:
-    #     open(output,'a').close()
     return success
 
 def ManyAlgorithms(X,tests=5,limit=10,\
