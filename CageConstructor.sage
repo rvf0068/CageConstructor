@@ -388,19 +388,18 @@ def ManyTests(X,tests=5,limit=10,\
                   delf = EdgesF[2],\
                   saveList = True,\
                   report = False,\
-                  writeResults = True\
+                  writeResults = False,\
+                  output = "/home/rafael/Dropbox/sage/resultsCage.org"
                   ):
     success=[]
-    output = "/home/rafael/Dropbox/sage/resultsCage.org"
-    theFile = open(output,'w')
-
-    if writeResults:
-        theFile.write("#+title: ("+str(X.verts)+","+str(X.g)+","
-                      +str(X.k)+")\n\n")
+    #theFile = open(output,'w')
+    # if writeResults:
+    #     open(output,'a').write("#+title: ("+str(X.verts)+","+str(X.g)+","
+    #                   +str(X.k)+")\n\n")
 
     for i in range(tests):
         if writeResults:
-            theFile.write("* Attempt "+str(i+1)+"\n\n")
+            open(output,'a').write("** Attempt "+str(i+1)+"\n\n")
         print "============================== Attempt %s ==========" % str(i+1)
         t=deepcopy(X)
         l=SearchForGraph(t,limit,notdonef,selectf,addf,delf,saveList,report)
@@ -408,17 +407,33 @@ def ManyTests(X,tests=5,limit=10,\
             print "Success!!"
             success.append(("OK",len(l)))
             if writeResults:
-                theFile.write("The graph found is: "
+                open(output,'a').write("The graph found is: "
                               +t.graph().graph6_string()+"\n")
-                theFile.write("There were "+str(len(l))+" different graphs\n\n")
+                open(output,'a').write("There were "+str(len(l))+" different graphs\n\n")
         else:
             if writeResults:
-                theFile.write("No graph found.\n")
-                theFile.write("There were "+str(len(l))+" different graphs\n\n")
+                open(output,'a').write("No graph found.\n")
+                open(output,'a').write("There were "+str(len(l))+" different graphs\n\n")
             success.append("Fail")
-    if writeResults:
-        theFile.close()
+    # if writeResults:
+    #     open(output,'a').close()
     return success
+
+def ManyAlgorithms(X,tests=5,limit=10,\
+                       notdonef = IsNotCageYet,\
+                       selectf = EdgesCageProblem,\
+                       addfs = OneEdgeF[2:4],\
+                       delfs = EdgesF,\
+                       saveList = True,\
+                       report = False,\
+                       writeResults = False,\
+                       output = "/home/rafael/Dropbox/sage/resultsCage.org"
+                       ):
+    for af in addfs:
+        for df in delfs:
+            open(output,'a').write("* "+af.func_name+", "+df.func_name+".\n\n")
+            l = ManyTests(X,tests,limit,notdonef,selectf,addf=af,delf=df)
+            open(output,'a').write(str(l)+"\n\n")
 
 # Local Variables:
 # eval: (yas/minor-mode 1)
