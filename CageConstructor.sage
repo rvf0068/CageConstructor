@@ -409,7 +409,7 @@ def ManyTests(X,tests=5,limit=10,\
             if writeResults:
                 open(output,'a').write("No graph found.\n")
                 open(output,'a').write("There were "+str(len(l))+" different graphs\n\n")
-            success.append("Fail")
+            success.append(("Fail",len(l)))
     return success
 
 def ManyAlgorithms(X,tests=5,limit=10,\
