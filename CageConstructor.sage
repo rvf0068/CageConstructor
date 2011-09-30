@@ -1,5 +1,6 @@
 import os
 import random
+import time
 
 class XEdge:
     """The end points of an edge, as an ordered pair, together with
@@ -401,6 +402,10 @@ def ManyTests(X,tests=5,limit=10,\
         if not(notdonef(t)):
             print "Success!!"
             success.append(("OK",len(l)))
+            lt = time.localtime(time.time())
+            goutput = str(lt[3])+"."+str(lt[4])+"."+str(lt[5])+"."+str(lt[6])+\
+                "-"+str(t.verts)+"-"+str(t.g)+"-"+str(t.k)
+            save(t.graph(),goutput)
             if writeResults:
                 open(output,'a').write("The graph found is: "
                               +t.graph().graph6_string()+"\n")
@@ -416,15 +421,23 @@ def ManyAlgorithms(X,tests=5,limit=10,\
                        notdonef = IsNotCageYet,\
                        selectf = EdgesCageProblem,\
                        addfs = OneEdgeF[2:4],\
-                       delfs = EdgesF,\
+                       delfs = EdgesF[2:4],\
                        saveList = True,\
                        report = False,\
                        writeResults = False,\
-                       output = "/home/rafael/Dropbox/sage/resultsCage.org"
+                       outputn = "results"
                        ):
+    lt = time.localtime(time.time())
+    output = "/home/rafael/Dropbox/sage/"+outputn+str(lt[0])+"."+\
+        str(lt[1])+"."+str(lt[2])+"."+str(lt[3])+"."+str(lt[4])+\
+        "-"+str(X.verts)+"-"+str(X.g)+"-"+str(X.k)+".org"
+    open(output,'a').write("#+title: Vertices: "+str(X.verts)+", Girth: "+\
+                               str(X.g)+", Degree: "+str(X.k)+"\n\n")
+    open(output,'a').write("#+OPTIONS: toc:nil author:nil\n#+date: \n\n")
     for af in addfs:
         for df in delfs:
             open(output,'a').write("* "+af.func_name+", "+df.func_name+".\n\n")
+            open(output,'a').write("Starting at "+time.asctime()+"\n\n")
             l = ManyTests(X,tests,limit,notdonef,selectf,addf=af,delf=df)
             open(output,'a').write(str(l)+"\n\n")
 
