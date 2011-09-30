@@ -33,10 +33,42 @@
 - [-] print more information, maybe in a temp .txt file, for example:
   - [X] how many feasible edges to choose from
   - [ ] the score to decide to add, or delete an edge
-  - [ ] whether the edges added equal the edges removed, and how many
+  - [X] whether the edges added equal the edges removed, and how many
     times this has happened.
-  - [ ] how many vertices have the 'wrong' degree, with the count of
+  - [X] how many vertices have the 'wrong' degree, with the count of
     each such wrong degree.
+  - [ ] Example: report:
+#+begin_example
+2392
+[0, 0, 0, 2, 4, 26]
+Removing  (25, 30)
+Removing  (26, 28)
+Adding  (26, 28) out of 2
+Adding  (25, 30) out of 1
+Same as the previous graph
+2393
+[0, 0, 0, 2, 4, 26]
+Removing  (10, 29)
+Removing  (18, 22)
+Removing  (18, 26)
+Adding  (10, 29) out of 4
+Adding  (11, 18) out of 3
+Adding  (18, 22) out of 1
+New graph!. There are now 617 graphs
+2394
+[0, 0, 0, 2, 4, 26]
+Removing  (7, 24)
+Adding  (7, 14) out of 2
+New graph!. There are now 618 graphs
+#+end_example
+  with something like:    
+#+begin_example
+.
+617: [0, 0, 0, 2, 4, 26]
+618: [0, 0, 0, 2, 4, 26]
+#+end_example
+i.e., a dot for each repeated graph, and the degree histogram for a
+new graph.
 
 - [ ] define the small cages (and maybe the graphs with small excess)
   so that one can compare results)
@@ -53,7 +85,7 @@
   by 1. Currently, if the edges e1, e2 are added, e1 will have age 2,
   e2 will have age 1, and the rest have their age added by 3.
 
-- [ ] keep a list of the graphs produced, classified up to isomorphism.
+- [X] keep a list of the graphs produced, classified up to isomorphism.
 
 - [ ] Maybe keep 'score' of an edge as an attribute. An edge with a
   high score would be less likely to be removed. For example, if one
@@ -61,3 +93,6 @@
   such edge would have a high score. If before adding an edge there
   were many chanches, and after adding it were much less, such an edge
   would be 'bad'.
+
+- [ ] Define the functions relative to each problem in a separate
+  file, and load them as needed.
