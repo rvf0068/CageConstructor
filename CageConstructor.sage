@@ -213,12 +213,8 @@ def DegreeSumMaxNotJustRemoved(X,edgelist,ntry):
     edgewithsums = sorted(edgelist,key=lambda e:e.whendeleted)
     edgewithsums = sorted(edgewithsums,\
                               key=lambda e:degreeSum(X,e),reverse=True)
-    # print "Scores. DSums:",map(lambda e:(degreeSum(X,e),e.ends),edgewithsums),"whendeleted:",\
-    #     map(lambda e:e.whendeleted,edgewithsums)
     i = 0
     while i<len(edgewithsums) and edgewithsums[i].whendeleted == ntry:
-        #print "vertex ",i,"whendeleted:",edgewithsums[i].whendeleted,"ntry",ntry
-        #print edgewithsums[i].ends," checked."
         i = i+1
     if i<len(edgewithsums):
         return edgewithsums[i]
@@ -236,7 +232,7 @@ def Random(X,edgelist,ntry=1):
         edgs = edgelist
     return edgs
 
-def OldAndRandom(X,edgelist,ntry=1):
+def OldAndRandom(X,edgelist,ntry):
     """Choose edges randomly for deletion, starting with the oldest.
     """
     i = random.choice([1,2,3])
