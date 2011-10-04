@@ -109,10 +109,16 @@ def CycleXGraph(n,g,k):
         C.pos.update({i:(cos(i*2*pi/n),sin(i*2*pi/n))})
     nonedges = C.graph().complement().edges(labels=False)
     for e in nonedges:
-        edge = XEdge(e)
-        if EdgeValidInCage(C,edge,g,k):
-            edge.whenadded=0
-            C.edgelist.append(edge)
+        if is_even(g):
+            if is_odd(e[1]-e[0]):
+                edge = XEdge(e)
+                if EdgeValidInCage(C,edge,g,k):
+                    edge.whenadded=0
+                    C.edgelist.append(edge)
+        else:
+            if EdgeValidInCage(C,edge,g,k):
+                edge.whenadded=0
+                C.edgelist.append(edge)
     return C
 
 def TreeForCage(n,g,k):
