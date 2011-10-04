@@ -95,6 +95,26 @@ def EdgeValidInCage(X,e,g,k):
     e1 = e.ends[1]
     return G.distance(e0,e1) >= g-1 and max([G.degree(e0),G.degree(e1)]) < k
 
+def EmptyXGraph(n,g,k):
+    elist = []
+    l = Combinations(n,2)
+    for e in l:
+        elist.append(XEdge((e[0],e[1]),0,0))
+    return XGraph(n,g,k,elist)
+
+def CycleXGraph(n,g,k):
+    C = XGraph(n,g,k,edgelist=[],edgeperm=[],pos={})
+    for i in range(n):
+        C.edgeperm.append(XEdge((i,(i+1)%n)))
+        C.pos.update({i:(cos(i*2*pi/n),sin(i*2*pi/n))})
+    nonedges = C.graph().complement().edges(labels=False)
+    for e in nonedges:
+        edge = XEdge(e)
+        if EdgeValidInCage(C,edge,g,k):
+            edge.whenadded=0
+            C.edgelist.append(edge)
+    return C
+
 def TreeForCage(n,g,k):
     """Returns an XGraph with n vertices and underlying graph a
     k-regular tree plus some isolated vertices. The tree will be the
