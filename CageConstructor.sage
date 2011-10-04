@@ -327,13 +327,7 @@ OneEdgeF = (First,DegreeSumMax,DegreeSumMaxNotRecent,\
 EdgesF = (Random,OldAndRandom,OldAndRandomNotRecentlyDeleted,\
               AlternateDeletionMode)
 
-def SearchForGraph(X,limit=200,\
-                       notdonef = IsNotCageYet,\
-                       selectf = EdgesCageProblem,\
-                       addf = OneEdgeF[3],\
-                       delf = EdgesF[2],\
-                       saveList = True,\
-                       report = True):
+def SearchForGraph(X,limit=200,**kwds):
     """Continuously look for a graph with certain properties, deleting
     edges if necessary.
 
@@ -356,7 +350,13 @@ def SearchForGraph(X,limit=200,\
 
     - `report`: if True, notifies of the result of the search.
     """
-    ntry = 1
+    notdonef = kwds.get('notdonef',IsNotCageYet)
+    selectf = kwds.get('selectf',EdgesCageProblem)
+    addf = kwds.get('addf',OneEdgeF[3])
+    delf = kwds.get('delf',EdgesF[2])
+    saveList = kwds.get('saveList',True)
+    report = kwds.get('report',True)
+    ntry = kwds.get('ntry',1)
     ExtendXGraph(X,selectf,addf,ntry)
     listofgraphs=[X.graph()]
     while notdonef(X) and ntry<=limit:
@@ -398,24 +398,24 @@ def SearchForGraph(X,limit=200,\
             print "Found a suitable graph!"
     return listofgraphs
 
-def ManyTests(X,tests=5,limit=10,\
-                  notdonef = IsNotCageYet,\
-                  selectf = EdgesCageProblem,\
-                  addf = OneEdgeF[3],\
-                  delf = EdgesF[2],\
-                  saveList = True,\
-                  report = False,\
-                  writeResults = False,\
-                  output = "/home/rafael/Dropbox/sage/resultsCage.org"
-                  ):
+def ManyTests(X,tests=5,limit=10,**kwds):
+    ndf = kwds.get('notdonef',IsNotCageYet)
+    sf = kwds.get('selectf',EdgesCageProblem)
+    af = kwds.get('addf',OneEdgeF[3])
+    df = kwds.get('delf',EdgesF[2])
+    sL = kwds.get('saveList',True)
+    rep = kwds.get('report',False)
+    writeResults = kwds.get('writeResults',False)
+    output = kwds.get('output',"/home/rafael/Dropbox/sage/resultsCage.org")
     success=[]
     for i in range(tests):
         if writeResults:
             open(output,'a').write("- "+str(i+1)+". ")
         print "============================== Attempt %s ==========" % str(i+1)
         t=deepcopy(X)
-        l=SearchForGraph(t,limit,notdonef,selectf,addf,delf,saveList,report)
-        if not(notdonef(t)):
+        l=SearchForGraph(t,limit,notdonef=ndf,selectf=sf,addf=af,\
+                             delf=df,saveList=sL,report=rep)
+        if not(ndf(t)):
             print "Success!!"
             success.append(("OK",len(l)))
             lt = time.localtime(time.time())
@@ -423,23 +423,24 @@ def ManyTests(X,tests=5,limit=10,\
                 "-"+str(t.verts)+"-"+str(t.g)+"-"+str(t.k)
             save(t.graph(),goutput)
             if writeResults:
-                open(output,'a').write("OK!: "+str(len(l))+" different graphs\n")
+                open(output,'a').write("OK!: "+str(len(l))+\
+                                           " different graphs\n")
         else:
             if writeResults:
-                open(output,'a').write("Fail: "+str(len(l))+" different graphs\n")
+                open(output,'a').write("Fail: "+str(len(l))+\
+                                           " different graphs\n")
             success.append(("Fail",len(l)))
     return success
 
-def ManyAlgorithms(X,tests=5,limit=10,\
-                       notdonef = IsNotCageYet,\
-                       selectf = EdgesCageProblem,\
-                       addfs = OneEdgeF[2:4],\
-                       delfs = EdgesF[2:4],\
-                       saveList = True,\
-                       report = False,\
-                       writeR = True,\
-                       outputn = "results"
-                       ):
+def ManyAlgorithms(X,tests=5,limit=10,**kwds):
+    ndf = kwds.get('notdonef',IsNotCageYet)
+    sf = kwds.get('selectf',EdgesCageProblem)
+    addfs = kwds.get('addfs',OneEdgeF[2:4])
+    delfs = kwds.get('delfs',EdgesF[2:4])
+    saveList = kwds.get('saveList',True)
+    report = kwds.get('report',False)
+    writeR = kwds.get('writeR',True)
+    outputn = kwds.get('outputn',"results")
     lt = time.localtime(time.time())
     output2 = "/home/rafael/Dropbox/sage/"+outputn+str(lt[0])+"."+\
         str(lt[1])+"."+str(lt[2])+"."+str(lt[3])+"."+str(lt[4])+\
@@ -449,11 +450,11 @@ def ManyAlgorithms(X,tests=5,limit=10,\
     open(output2,'a').write("#+OPTIONS: toc:nil author:nil\n#+date: \n")
     for af in addfs:
         for df in delfs:
-            open(output2,'a').write("\n* "+af.func_name+", "+df.func_name+".\n\n")
+            open(output2,'a').write("\n* "+af.func_name+", "
+                                    +df.func_name+".\n\n")
             open(output2,'a').write("Starting at "+time.asctime()+"\n\n")
-            l = ManyTests(X,tests,limit,notdonef,selectf,addf=af,delf=df,\
-                              saveList=True,report=False,writeResults=True,\
-                          output=output2)
+            l = ManyTests(X,tests,limit,notdonef=ndf,selectf=sf,addf=af,
+                          delf=df,writeResults=True,output=output2)
 
 # girth 5
 
