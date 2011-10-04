@@ -430,11 +430,13 @@ def ManyTests(X,tests=5,limit=10,**kwds):
             save(t.graph(),goutput)
             if writeResults:
                 open(output,'a').write("OK!: "+str(len(l))+\
-                                           " different graphs\n")
+                                           " different graphs. "+\
+                                           time.asctime()+"\n")
         else:
             if writeResults:
                 open(output,'a').write("Fail: "+str(len(l))+\
-                                           " different graphs\n")
+                                           " different graphs. "+\
+                                           time.asctime()+"\n")
             success.append(("Fail",len(l)))
     return success
 
