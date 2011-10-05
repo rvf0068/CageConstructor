@@ -23,7 +23,7 @@
 
 * todo
 
-- [ ] define a cycle as an XGraph, so that we start looking for a cage
+- [X] define a cycle as an XGraph, so that we start looking for a cage
   from there (note that many cages are hamiltonian).
 
 - [ ] split the code in modules, for example one for cages and one for
