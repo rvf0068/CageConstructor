@@ -272,7 +272,7 @@ def AlternateDeletionMode(X,edgelist,ntry):
         if is_odd(ntry):
             print "Removing old"
             oedgs = sorted(edgelist,key=lambda e: ntry-e.whenadded,reverse=True)
-            print "Ages: ",map(lambda e: ntry-e.whenadded,oedgs)
+            print "Ages: ",map(lambda e: (e.ends,ntry-e.whenadded),oedgs)
             edgs = oedgs[:i]
         else:
             print "Removing recent"
