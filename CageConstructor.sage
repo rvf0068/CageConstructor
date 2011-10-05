@@ -116,6 +116,7 @@ def CycleXGraph(n,g,k):
                     edge.whenadded=0
                     C.edgelist.append(edge)
         else:
+            edge = XEdge(e)
             if EdgeValidInCage(C,edge,g,k):
                 edge.whenadded=0
                 C.edgelist.append(edge)
@@ -425,8 +426,10 @@ def ManyTests(X,tests=5,limit=10,**kwds):
             print "Success!!"
             success.append(("OK",len(l)))
             lt = time.localtime(time.time())
-            goutput = str(lt[3])+"."+str(lt[4])+"."+str(lt[5])+"."+str(lt[6])+\
-                "-"+str(t.verts)+"-"+str(t.g)+"-"+str(t.k)
+            goutput = str(lt[0])+"."+str(lt[1]).zfill(2)+"."+\
+                str(lt[2]).zfill(2)+"."+str(lt[3]).zfill(2)+"."+\
+                str(lt[4]).zfill(2)+"."+str(lt[5]).zfill(2)+"."+\
+                str(lt[6]).zfill(2)+"-"+str(t.verts)+"-"+str(t.g)+"-"+str(t.k)
             save(t.graph(),goutput)
             if writeResults:
                 open(output,'a').write("OK!: "+str(len(l))+\
@@ -451,7 +454,8 @@ def ManyAlgorithms(X,tests=5,limit=10,**kwds):
     outputn = kwds.get('outputn',"results")
     lt = time.localtime(time.time())
     output2 = "/home/rafael/Dropbox/sage/"+outputn+str(lt[0])+"."+\
-        str(lt[1])+"."+str(lt[2])+"."+str(lt[3])+"."+str(lt[4])+\
+        str(lt[1]).zfill(2)+"."+str(lt[2]).zfill(2)+"."+\
+        str(lt[3]).zfill(2)+"."+str(lt[4]).zfill(2)+\
         "-"+str(X.verts)+"-"+str(X.g)+"-"+str(X.k)+".org"
     open(output2,'a').write("#+title: Vertices: "+str(X.verts)+", Girth: "+\
                                str(X.g)+", Degree: "+str(X.k)+"\n\n")
