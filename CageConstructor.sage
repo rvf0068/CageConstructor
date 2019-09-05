@@ -413,7 +413,7 @@ def ManyTests(X,tests=5,limit=10,**kwds):
     sL = kwds.get('saveList',True)
     rep = kwds.get('report',False)
     writeResults = kwds.get('writeResults',False)
-    output = kwds.get('output',"/home/rafael/Dropbox/sage/resultsCage.org")
+    output = kwds.get('output',"resultsCage.org")
     success=[]
     for i in range(tests):
         if writeResults:
@@ -453,7 +453,7 @@ def ManyAlgorithms(X,tests=5,limit=10,**kwds):
     writeR = kwds.get('writeR',True)
     outputn = kwds.get('outputn',"results")
     lt = time.localtime(time.time())
-    output2 = "/home/rafael/Dropbox/sage/"+outputn+str(lt[0])+"."+\
+    output2 = "./sage/"+outputn+str(lt[0])+"."+\
         str(lt[1]).zfill(2)+"."+str(lt[2]).zfill(2)+"."+\
         str(lt[3]).zfill(2)+"."+str(lt[4]).zfill(2)+\
         "-"+str(X.verts)+"-"+str(X.g)+"-"+str(X.k)+".org"
